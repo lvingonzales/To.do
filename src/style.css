@@ -1,1 +1,46 @@
+:root {
+    font-family: Roboto;
+}
 
+body {
+    margin: 0px;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    background-color: rebeccapurple;
+    border: 1px solid;
+    width: 15%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.content {
+    display: flex;
+    background-color: rebeccapurple;
+    border: 1px solid;
+    width: 85%;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.project-page {
+    background-color: greenyellow;
+    width: 60%;
+    border: 1px solid gray;
+    border-radius: .5rem;
+    padding: 1rem;
+}
+
+.task-list {
+    background-color: greenyellow;
+    width: 40%;
+    border: 1px solid gray;
+    border-radius: .5rem;
+}
