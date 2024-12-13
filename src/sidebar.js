@@ -6,11 +6,11 @@ import addProjIcon from "./resources/icons/plus.svg";
 
 let globalSidebarDoms = null;
 let removeMode = false;
+export let currentlySelected = null;
 class Project {
     constructor (name) {
         this.name = name;
         this.domElement;
-        this.currentlySelected;
         this.hoverNone = () => {
             this.domElement.style.backgroundColor = "transparent"
             this.domElement.style.color = "black";
@@ -72,7 +72,7 @@ class Project {
         if (removeMode) {
             this.hoverRed();
         } else {
-            if(!this.currentlySelected){
+            if(currentlySelected !== this){
                 this.hoverGrey();
             }
             
@@ -84,10 +84,46 @@ class Project {
             this.rModeActive();
         }
         else {
-            if (!this.currentlySelected){
+            if (currentlySelected !== this){
                 this.hoverNone();
             }
         }
+    }
+}
+
+class TaskButton {
+    constructor () {
+        this.hoverNone = () => {
+            this.domElement.style.backgroundColor = "transparent"
+            this.domElement.style.color = "black";
+        };
+        this.hoverGrey = () => this.domElement.style.backgroundColor = "grey";
+        this.selected = () => {
+            this.domElement.style.backgroundColor = "black";
+            this.domElement.style.color = "white";
+        };
+    }
+
+    DomSetup () {
+        this.domElement = document.createElement ('div');
+        let TaskButton = this.domElement;
+        TaskButton.classList.add ("task-button");
+        TaskButton.textContent = "Tasks";
+        TaskButton.addEventListener("click", (e) => this.OnMouseClick(e));
+        TaskButton.addEventListener("mouseover", (e) => this.OnMouseOver(e));
+        TaskButton.addEventListener("mouseout", (e) => this.OnMouseOut(e));
+    }
+
+    OnMouseClick () {
+        SelectProject(this);
+    }
+
+    OnMouseOver () {
+        if (currentlySelected !== this ) this.hoverGrey();
+    }
+
+    OnMouseOut() {
+        if (currentlySelected !== this) this.hoverNone();
     }
 }
 
@@ -162,6 +198,7 @@ class Buttons {
             projects.forEach((project) => {
                 project.hoverNone();
             })
+            currentlySelected.selected();
         }
     }
     
@@ -176,14 +213,10 @@ class Buttons {
 }
 
 function SelectProject (selectedProject) {
-    projects.forEach( project => {
-        if (project !== selectedProject) {
-            project.currentlySelected = false;
-            project.hoverNone();
-        }
-    });
-
-    selectedProject.currentlySelected = true;
+    if (currentlySelected) {
+        currentlySelected.hoverNone();
+    }
+    currentlySelected = selectedProject;
     selectedProject.selected();
 }
 
@@ -194,6 +227,7 @@ function CreateSidebarDoms () {
     let removeButton;
     let addButton;
     let projectPane;
+
     
     const setSideBar = () => {
         // Create The Main Div
@@ -265,6 +299,11 @@ export function SidebarDisplay () {
     header.append (globalSidebarDoms.getLogo());
     header.append (globalSidebarDoms.getRemoveButton().domElement);
     header.append (globalSidebarDoms.getAddButton().domElement);
+    const TaskButtonDiv = new TaskButton();
+    TaskButtonDiv.DomSetup();
+    sidebar.append (TaskButtonDiv.domElement);
+    currentlySelected = TaskButtonDiv;
+    TaskButtonDiv.selected();
     sidebar.append (globalSidebarDoms.getProjectPane());
 
     return {getRemoveButton: globalSidebarDoms.getRemoveButton}
