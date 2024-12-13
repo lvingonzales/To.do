@@ -1,7 +1,7 @@
 import { containerDiv, projects} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
-
+import { ChangeDisplay } from "./project";
 
 
 let globalSidebarDoms = null;
