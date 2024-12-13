@@ -21,7 +21,10 @@ class Project {
             this.domElement.style.backgroundColor = "black";
             this.domElement.style.color = "white";
         };
-        this.rModeActive = () => this.domElement.style.backgroundColor = "red";
+        this.rModeActive = () => {
+            this.domElement.style.backgroundColor = "red";
+            this.domElement.style.color = "white";
+        };
     }
     
     CreateSideEntry() {
@@ -31,8 +34,8 @@ class Project {
         projectSideDiv.classList.add ('project', 'side');
         projectPane.append (projectSideDiv);
         projectSideDiv.dataset.func = "project";
-        projectSideDiv.addEventListener("mouseover", (e) => this.OnMouseClick(e));
-        projectSideDiv.addEventListener("mouseout", (e) => this.OnMouseClick(e));
+        projectSideDiv.addEventListener("mouseover", (e) => this.OnMouseOver(e));
+        projectSideDiv.addEventListener("mouseout", (e) => this.OnMouseOut(e));
         projectSideDiv.addEventListener("click", (e) => this.OnMouseClick(e));
 
         let statusDiv = document.createElement ('div');
@@ -53,23 +56,19 @@ class Project {
         console.log (this);
     }
     OnMouseClick() {
-        let removeMode = InputHandler().getRemoveMode();
         if (removeMode) {
-            let index = projects.findIndex(element => element.domElement === this);
+            let index = projects.findIndex(element => element === this);
             this.domElement.remove();
             projects.splice(index, 1);
+            let removeButton = globalSidebarDoms.getRemoveButton();
+            console.log (removeButton);
+            removeButton.CheckProjects();
+
         } else {
-            projects.forEach((item) => {
-                item.currentlySelected = false;
-                item.hoverNone();
-            })
-            this.currentlySelected = true;
-            this.selected();
-            console.log (this);
+            SelectProject(this);
         }
     }
     OnMouseOver() {
-        let removeMode = InputHandler().getRemoveMode();
         if (removeMode) {
             this.hoverRed();
         } else {
@@ -81,7 +80,6 @@ class Project {
         
     }
     OnMouseOut () {
-        let removeMode = InputHandler().getRemoveMode();
         if (removeMode) {
             this.rModeActive();
         }
@@ -93,8 +91,103 @@ class Project {
     }
 }
 
+class Buttons {
+    constructor (name, classes, func, icon) {
+        this.name = name;
+        this.classes = classes;
+        this.func = func;
+        this.icon = icon;
+        this.domElement;
+        this.hoverNone = () => this.domElement.style.backgroundColor = "transparent";
+        this.hoverGrey = () => this.domElement.style.backgroundColor = "grey";
+        this.active = () => this.domElement.style.backgroundColor = "red";
+    }
+    DomSetup () {
+        this.domElement = document.createElement('button');
+        let button = this.domElement;
+        button.classList.add (this.classes);
+        button.dataset.func = this.func;
+        let buttonIcon = document.createElement ('img');
+        buttonIcon.src = this.icon;
+        button.appendChild (buttonIcon);
+        button.addEventListener("mouseover", (e) => this.OnMouseOver(e));
+        button.addEventListener("mouseout", (e) => this.OnMouseOut(e));
+        button.addEventListener("click", (e) => this.OnMouseClick(e));
+        this.hoverNone();
+    }
+
+    OnMouseOver () {
+        if (this.func === "-") {
+            this.active();
+        } else {
+            this.hoverGrey();
+        }
+    }
+
+    OnMouseOut () {
+        if (this.func === "-" && !removeMode) {
+            this.hoverNone();
+        } else if (this.func === "+") {
+            this.hoverNone();
+        }
+    }
+
+    OnMouseClick () {
+        if (this.func === "-") {
+            if (projects.length === 0) return alert(`Nothing here boss`);
+            removeMode = removeMode ? removeMode = false : removeMode = true;
+            this.SwitchRemoveMode();
+        } else {
+            removeMode = false;
+            globalSidebarDoms.getRemoveButton().SwitchRemoveMode();
+            this.AddProject();
+        }
+    }
+
+    CheckProjects() {
+        if (projects.length === 0) {
+            removeMode = false;
+            this.hoverNone();
+        }
+    }
+
+    SwitchRemoveMode() {
+        if (removeMode) {
+            this.active();
+            projects.forEach(project => {
+                project.rModeActive();
+            })
+        } else {
+            this.hoverNone();
+            projects.forEach((project) => {
+                project.hoverNone();
+            })
+        }
+    }
+    
+    AddProject () {
+        let newName;
+        if (!(newName = (prompt(`Enter a name for your project: `)))) return;
+        projects.push (new Project(newName));
+        let newProject = projects.findLast(element => element);
+        newProject.CreateSideEntry();
+        SelectProject(newProject);
+    }
+}
+
+function SelectProject (selectedProject) {
+    projects.forEach( project => {
+        if (project !== selectedProject) {
+            project.currentlySelected = false;
+            project.hoverNone();
+        }
+    });
+
+    selectedProject.currentlySelected = true;
+    selectedProject.selected();
+}
+
 function CreateSidebarDoms () {
-    const inputHandler = InputHandler();
     let sidebar;
     let logo;
     let header;
@@ -129,27 +222,15 @@ function CreateSidebarDoms () {
 
     const setRemoveButton = () => {
         // Add remove project button
-        const removeProjButton = document.createElement ('button');
-        removeProjButton.classList.add ('remove-project');
-        removeProjButton.dataset.func = "-";
-        let removeProjButtonIcon = document.createElement ('img');
-        removeProjButtonIcon.src = removeProjIcon;
-        removeProjButton.append (removeProjButtonIcon);
-        removeProjButton.addEventListener("click", inputHandler.removeProject);
-        removeButton = removeProjButton;
+        removeButton = new Buttons ("remove", "remove-project", "-", removeProjIcon);
+        removeButton.DomSetup();
     }
     const getRemoveButton = () => removeButton;
 
     const setAddButton = () => {
         // Add Add project button
-        const addProjButton = document.createElement ('button');
-        addProjButton.classList.add ('add-project');
-        addProjButton.dataset.func = "+";
-        let addProjButtonIcon = document.createElement ('img');
-        addProjButtonIcon.src = addProjIcon;
-        addProjButton.append (addProjButtonIcon);
-        addProjButton.addEventListener("click", inputHandler.addProject);
-        addButton = addProjButton;
+        addButton = new Buttons ("add", "add-project", "+", addProjIcon);
+        addButton.DomSetup();
     }
     const getAddButton = () => addButton;
 
@@ -159,74 +240,32 @@ function CreateSidebarDoms () {
         projectPaneDiv.classList.add ('project-pane');
         projectPane = projectPaneDiv;
     }
+
+    const SetupDomElements = () => {
+        setSideBar();
+        setHeader();
+        setLogo();
+        setRemoveButton();
+        setAddButton();
+        setProjectPane();
+    }
     const getProjectPane = () => projectPane;
 
-    return {getSideBar, getLogo, getHeader, getRemoveButton, getAddButton, getProjectPane,
-        setSideBar, setHeader, setLogo, setRemoveButton, setAddButton, setProjectPane,
-    }
-}
-
-function InputHandler () {
-
-    const setRemoveMode = () => removeMode = removeMode ? removeMode = false : removeMode = true;
-
-    const getRemoveMode = () => removeMode;
-
-    function addProject () {
-        let newName = prompt(`Enter a name for your project: `);
-        projects.push (new Project(newName));
-        const newProject = projects.findLast((element) => element);
-        newProject.CreateSideEntry();
-        SelectProject(newProject);
-        // console.log (projects);
-    }
-    
-    function removeProject () {
-        if (projects.length === 0) return alert(`NO PROJECTS TO DELETE`);
-        setRemoveMode();
-        if (getRemoveMode()) {
-            projects.forEach((item) => {
-                item.domElement.style.backgroundColor = "red";
-            })
-        } else {
-            projects.forEach((item) => {
-                item.domElement.style.backgroundColor = "transparent";
-            })
-        }
-    }
-    
-    function SelectProject (selectedProject) {
-        projects.forEach( project => {
-            if (project !== selectedProject) {
-                project.currentlySelected = false;
-                project.hoverNone();
-            }
-        });
-
-        selectedProject.currentlySelected = true;
-        selectedProject.selected();
-    }
-
-    return {addProject, removeProject, getRemoveMode, SelectProject}
+    return {getSideBar, getLogo, getHeader, getRemoveButton, getAddButton, getProjectPane, SetupDomElements}
 }
 
 export function SidebarDisplay () {
     globalSidebarDoms = CreateSidebarDoms();
-
-    globalSidebarDoms.setSideBar();
+    globalSidebarDoms.SetupDomElements();
     const sidebar = globalSidebarDoms.getSideBar();
-    globalSidebarDoms.setHeader();
     const header = globalSidebarDoms.getHeader();
-    
-    containerDiv.prepend (sidebar);
-    sidebar.append (header);
-    globalSidebarDoms.setLogo();
+
+    containerDiv.prepend (globalSidebarDoms.getSideBar());
+    sidebar.append (globalSidebarDoms.getHeader());
     header.append (globalSidebarDoms.getLogo());
-    globalSidebarDoms.setRemoveButton();
-    header.append (globalSidebarDoms.getRemoveButton());
-    globalSidebarDoms.setAddButton();
-    header.append (globalSidebarDoms.getAddButton());
-    globalSidebarDoms.setProjectPane();
+    header.append (globalSidebarDoms.getRemoveButton().domElement);
+    header.append (globalSidebarDoms.getAddButton().domElement);
     sidebar.append (globalSidebarDoms.getProjectPane());
 
+    return {getRemoveButton: globalSidebarDoms.getRemoveButton}
 }

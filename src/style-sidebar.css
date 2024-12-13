@@ -7,14 +7,9 @@
 
 .header > button {
     cursor: pointer;
-    background-color: transparent;
     border: none;
     width: 40px;
     border-radius: 20%;
-}
-
-.header > button:hover {
-    background-color: black !important;
 }
 
 .logo {
