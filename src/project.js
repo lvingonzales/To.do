@@ -1,40 +1,15 @@
 import { currentlySelected } from "./sidebar";
-import { projectPage } from "./main";
-class MainDisplay {
-    constructor () {
-        this.titleText;
-        this.titleDom;
+import { MainDisplay } from "./classes";
 
-        this.descriptionText;
-        this.descriptionDom;
+export function InitMainDisplay (contentDiv) {
+    let display = new MainDisplay();
+    
+    let projectPageDiv = document.createElement ('div');
+    projectPageDiv.classList.add ('project-page');
+    contentDiv.append (projectPageDiv);
 
-        this.dateText;
-        this.dateDom;
-
-        this.taskChecklistDom;
-
-        this.addTaskButtonDom;
-        this.addTaskButtonImg;
-
-        this.taskDom;
-        this.taskCheckbox;
-        this.taskLabel;
-        this.taskDate;
-
-        this.projectNotesText;
-        this.projectNotesDom;
-    }
-
-    DomSetup () {
-
-    }
-
-    ChangeInfo () {
-
-    }
+    display.DomSetup(projectPageDiv);
 }
-
-let display = new MainDisplay();
 
 export function ChangeDisplay() {
     
