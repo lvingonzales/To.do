@@ -33,9 +33,10 @@
     padding: 0.5rem;
     padding-top: 0rem;
     overflow: scroll;
+    padding-bottom: 0.5rem;
 }
 
-.add-task {
+#add-task {
     display: flex;
     justify-content: end;
     position: sticky;

@@ -28,8 +28,6 @@ class ProjectTab {
     domSetup() {
         const projectPane = sidebar.projectPane;
 
-        console.log (projectPane);
-
         let projectSideDiv = this.domElement;
         projectSideDiv.classList.add ('project', 'side');
         projectPane.append (projectSideDiv);
@@ -277,4 +275,4 @@ function initSidebar () {
     sidebar.domSetup();
 }
 
-export {initSidebar, TaskTab, ProjectTab}
+export {initSidebar, TaskTab, ProjectTab, currentlySelected}

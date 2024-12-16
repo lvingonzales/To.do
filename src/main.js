@@ -5,7 +5,6 @@ import { initSidebar, ProjectTab, TaskTab } from "./sidebar.js";
 import { InitMainDisplay } from "./project-page.js";
 const containerDiv = document.querySelector(".container");
 
-const tasks = [];
 const projects = [];
 
 class Project {
@@ -42,4 +41,4 @@ function initMain () {
 
 initMain();
 
-export {containerDiv, projects, Project}
+export {containerDiv, projects, Project, Task}
