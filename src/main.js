@@ -1,22 +1,45 @@
 import "./style.css";
 import "./style-sidebar.css";
 import "./style-main.css";
-import { SidebarDisplay } from "./sidebar.js";
-import { InitMainDisplay } from "./project.js";
-export const containerDiv = document.querySelector(".container");
+import { initSidebar, ProjectTab, TaskTab } from "./sidebar.js";
+import { InitMainDisplay } from "./project-page.js";
+const containerDiv = document.querySelector(".container");
 
-export const Tasks = [];
-export const projects = [];
+const tasks = [];
+const projects = [];
 
-function init () {
-    SidebarDisplay();
+class Project {
+    constructor (title, description, date) {
+        this.id;
+        this.title = title;
+        this.description = description;
+        this.date = date;
+        this.notes;
+        this.tasks = [];
+        this.projectTab;
+    }
+}
 
+class Task {
+    constructor (title, description, date, project) {
+        this.title = title;
+        this.description = description;
+        this.date = date;
+        this.notes;
+        this.project = project;
+        this.taskListEntry;
+        this.taskDisplay;
+    }
+}
+
+function initMain () {
     let contentDiv = document.createElement('div');
     contentDiv.classList.add ("content");
     containerDiv.append (contentDiv);
-
     InitMainDisplay(contentDiv);
+    initSidebar();
 }
 
-init();
+initMain();
 
+export {containerDiv, projects, Project}
