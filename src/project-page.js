@@ -141,7 +141,8 @@ class TaskCheckListTab {
 
         let titleLabel = document.createElement ('label');
         titleLabel.setAttribute ("for", "task-title");
-        titleLabel.textContent = this.task.title;
+        titleLabel.setAttribute ('contenteditable', "");
+        titleLabel.textContent = "New Task";
         element.append (titleLabel);
     }
 }
