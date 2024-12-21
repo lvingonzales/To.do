@@ -50,6 +50,15 @@ class ProjectTab {
         projectDate.classList.add ('project-date', 'side')
         projectSideDiv.append (projectDate);
     }
+    updateInfo (title, date) {
+        this.domElement.remove();
+        while (this.domElement.lastElementChild) {
+            this.domElement.removeChild (this.domElement.lastElementChild);
+        }
+        this.title = title;
+        this.date = date;
+        this.domSetup();
+    }
     OnMouseClick() {
         if (removeMode) {
             let index = projects.findIndex(element => element === this);

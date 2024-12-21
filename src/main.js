@@ -17,6 +17,12 @@ class Project {
         this.tasks = [];
         this.projectTab;
     }
+    updateInfo (title, desc, date, notes) {
+        this.title = title;
+        this.description = desc;
+        this.date = date;
+        this.notes = notes;
+    }
 }
 
 class Task {

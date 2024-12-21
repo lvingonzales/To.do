@@ -21,20 +21,28 @@ class MainDisplay {
 
         this.projectNotesText;
         this.projectNotesDom;
+
+        this.saveButton;
     }
 
     domSetup (projectPage) {
-        this.titleDom = document.createElement('div');
+        this.titleDom = document.createElement('textarea');
         let title = this.titleDom;
         title.classList.add ('project-title');
         projectPage.append (title);
 
-        this.descriptionDom = document.createElement('div');
+        this.descriptionDom = document.createElement('textarea');
         let description = this.descriptionDom;
         description.classList.add ('project-description');
         projectPage.append (description);
+        
+        this.saveButton = document.createElement ('button');
+        this.saveButton.setAttribute ('id', 'save-button');
+        this.saveButton.textContent = 'Save';
+        projectPage.append (this.saveButton);
+        this.saveButton.addEventListener ('click', (e) => this.updateInfo(e));
 
-        this.dateDom = document.createElement('div');
+        this.dateDom = document.createElement('textarea');
         let date = this.dateDom;
         date.classList.add ('project-date');
         projectPage.append (date);
@@ -43,11 +51,10 @@ class MainDisplay {
         let task = this.taskDom;
         task.classList.add ('task-checklist');
         projectPage.append (task);
-        let addTaskButton = new Buttons('add-task');
-        addTaskButton.domSetup();
-        task.append (addTaskButton.domElement);
+        let taskForm = new addTaskForm();
+        taskForm.domSetup();
 
-        this.projectNotesDom = document.createElement('div');
+        this.projectNotesDom = document.createElement('textarea');
         let projectNotes = this.projectNotesDom;
         projectNotes.classList.add ('project-notes');
         projectPage.append (projectNotes);
@@ -57,6 +64,16 @@ class MainDisplay {
         this.titleDom.textContent = selectedProject.title
         this.descriptionDom.textContent = selectedProject.description;
         this.dateDom.textContent = selectedProject.date;
+
+        if (selectedProject.title === 'Tasks') {
+            this.titleDom.setAttribute ('disabled', '');
+            this.descriptionDom.setAttribute ('disabled', '');
+            this.dateDom.setAttribute ('disabled', '');
+        } else {
+            this.titleDom.removeAttribute ('disabled');
+            this.descriptionDom.removeAttribute ('disabled');
+            this.dateDom.removeAttribute ('disabled');
+        }
 
         lastSelected.tasks.forEach(task => {
             while (task.taskListEntry.domElement.lastElementChild) {
@@ -71,59 +88,118 @@ class MainDisplay {
         selectedProject.tasks.forEach (task => {
             task.taskListEntry.domSetup();
         })
+    }
 
+    updateInfo () {
+        currentlySelected.updateInfo(this.titleDom.value)
+        currentlySelected.projectTab.updateInfo(this.titleDom.value, this.dateDom.value);
+        console.log (currentlySelected);
     }
 }
 
-class Buttons {
-    constructor (id) {
-        this.id = id;
-        this.domElement = document.createElement ('div');
-        this.icon;
+class addTaskForm {
+    constructor () {
+        this.form = document.createElement ('form');
+        this.formTitleInput;
+        this.formDescInput;
+        this.formDateInput;
     }
-
     domSetup () {
-        let svgNamespace = "http://www.w3.org/2000/svg";
+        let formWrapper = document.createElement('div');
+        formWrapper.setAttribute ('id', 'new-task-form');
+        display.taskDom.prepend (formWrapper);
 
-        this.domElement.setAttribute ('id', this.id);
-        display.taskDom.prepend (this.domElement);
+        this.form.setAttribute ("action", "");
+        this.form.setAttribute ("method", "get");
+        this.form.setAttribute ("class", "new-task-form");
+        formWrapper.append (this.form);
 
-        this.icon = document.createElementNS (svgNamespace, 'svg');
-        this.icon.setAttribute ("height", "36px");
-        this.icon.setAttribute ("viewBox", "0 -960 960 960");
-        this.icon.setAttribute ("width", "36px");
-        this.icon.setAttribute ("fill", "black");
-        this.domElement.append (this.icon);
-        let iconPath = document.createElementNS (svgNamespace, 'path');
-        iconPath.setAttribute ('d', 'M439.5-440H242.37q-17.03 0-28.76-11.76-11.74-11.76-11.74-28.83 0-17.06 11.74-28.74Q225.34-521 242.37-521H439.5v-197.13q0-17.03 11.76-28.76 11.76-11.74 28.83-11.74 17.06 0 28.74 11.74 11.67 11.73 11.67 28.76V-521h197.13q17.03 0 28.76 11.76 11.74 11.76 11.74 28.83 0 17.06-11.74 28.74Q734.66-440 717.63-440H520.5v197.13q0 17.03-11.76 28.76-11.76 11.74-28.83 11.74-17.06 0-28.74-11.74-11.67-11.73-11.67-28.76V-440Z');
-        this.icon.append (iconPath);
+        let formFieldWrapper = document.createElement ('div');
+        formFieldWrapper.classList.add ('form-fields');
+        this.form.append (formFieldWrapper);
 
-        this.domElement.addEventListener("mouseover", (e) => this.onMouseOver(e));
-        this.domElement.addEventListener("mouseout", (e) => this.onMouseOut(e));
-        this.domElement.addEventListener("click", (e) => this.onMouseClick(e));
+        let formTitle = document.createElement ('div');
+        let formTitleLabel = document.createElement ('label');
+        this.formTitleInput = document.createElement ('input');
+
+        formTitle.setAttribute ('id', 'form-title');
+        formFieldWrapper.append (formTitle);
+
+        formTitleLabel.setAttribute ('for', 'task-title');
+        formTitleLabel.textContent = 'Task Title:';
+        formTitle.append (formTitleLabel);
+
+        this.formTitleInput.setAttribute ('type', 'text');
+        this.formTitleInput.setAttribute ('name', 'title');
+        this.formTitleInput.setAttribute ('id', 'task-title');
+        this.formTitleInput.setAttribute ('autocomplete', 'off');
+        formTitle.append (this.formTitleInput);
+        console.log (this.formTitleInput);
+
+        let formDesc = document.createElement ('div');
+        let formDescLabel = document.createElement ('label');
+        this.formDescInput = document.createElement ('input');
+
+        formDesc.setAttribute ('id', 'form-desc');
+        formFieldWrapper.append (formDesc);
+
+        formDescLabel.setAttribute ('for', 'task-description');
+        formDescLabel.textContent = 'Task Description:';
+        formDesc.append (formDescLabel);
+
+        this.formDescInput.setAttribute ('type', 'text');
+        this.formDescInput.setAttribute ('name', 'desc');
+        this.formDescInput.setAttribute ('id', 'task-description');
+        this.formDescInput.setAttribute ('autocomplete', 'off');
+        formDesc.append (this.formDescInput);
+
+        let formDate = document.createElement ('div');
+        let formDateLabel = document.createElement ('label'); 
+        this.formDateInput = document.createElement ('input');
+
+        formDate.setAttribute ('id', 'form-date');
+        formFieldWrapper.append (formDate);
+
+        formDateLabel.setAttribute ('for', 'task-date');
+        formDateLabel.textContent = 'Task date:';
+        formDate.append (formDateLabel);
+
+        this.formDateInput.setAttribute ('type', 'date');
+        this.formDateInput.setAttribute ('name', 'date');
+        this.formDateInput.setAttribute ('id', 'task-date');
+        this.formDateInput.setAttribute ('autocomplete', 'off');
+        formDate.append (this.formDateInput);
+
+        let submitButton = document.createElement ('button');
+        submitButton.setAttribute ('type', 'submit');
+        submitButton.setAttribute ('id', 'form-submit');
+        submitButton.textContent = 'Add Task';
+        formFieldWrapper.append (submitButton);
+
+        submitButton.addEventListener ("click", this.preventDefault, false);
+        submitButton.addEventListener ("click", (e) => this.addTask(e));
     }
-    onMouseClick () {
-        let newTask = new Task ("New Task", "description", "--/--/----", currentlySelected);
+    preventDefault(event) {
+        event.preventDefault();
+    }
+    addTask() {
+        let taskTitle = this.formTitleInput;
+        let taskDesc = this.formDescInput;
+        let taskDate = this.formDateInput;
+        let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, currentlySelected);
         newTask.taskListEntry = new TaskCheckListTab (newTask);
         newTask.taskListEntry.domSetup();
         currentlySelected.tasks.push (newTask);
         console.log (newTask);
-    }
-
-    onMouseOver () {
-
-    }
-
-    onMouseOut () {
-
+        this.form.reset();
     }
 }
 
 class TaskCheckListTab {
     constructor (task) {
         this.task = task;
-        this.title;
-        this.date;
+        this.title = task.title;
+        this.date = task.date;
         this.domElement = document.createElement ('div');
     }
     domSetup () {
@@ -141,9 +217,13 @@ class TaskCheckListTab {
 
         let titleLabel = document.createElement ('label');
         titleLabel.setAttribute ("for", "task-title");
-        titleLabel.setAttribute ('contenteditable', "");
-        titleLabel.textContent = "New Task";
+        titleLabel.textContent = this.title;
         element.append (titleLabel);
+        
+        let taskDate = document.createElement ('div');
+        taskDate.classList.add ('task-date');
+        taskDate.textContent = this.date;
+        element.append (taskDate);
     }
 }
 
