@@ -1,7 +1,7 @@
 import { containerDiv, projects, Project} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
-import { ChangeDisplay, enableEditing } from "./project-page";
+import { ChangeDisplay, changeProject, enableEditing, setIsEditable } from "./project-page";
 
 class ProjectTab {
     constructor (parent) {
@@ -50,13 +50,13 @@ class ProjectTab {
         projectDate.classList.add ('project-date', 'side')
         projectSideDiv.append (projectDate);
     }
-    updateInfo (title, date) {
+    updateInfo () {
         this.domElement.remove();
         while (this.domElement.lastElementChild) {
             this.domElement.removeChild (this.domElement.lastElementChild);
         }
-        this.title = title;
-        this.date = date;
+        this.title = this.project.title;
+        this.date = this.project.date;
         this.domSetup();
     }
     OnMouseClick() {
@@ -209,13 +209,14 @@ class SidebarButtons {
     }
     
     AddProject () {
-        let newName;
-        if (!(newName = (prompt(`Enter a name for your project: `)))) return;
-        let newProject = new Project(newName, "this is a placeholder", "--/--/----");
+        // let newName;
+        // if (!(newName = (prompt(`Enter a name for your project: `)))) return;
+        let newProject = new Project("Project Name", "Project Description", "--/--/----");
         newProject.projectTab = new ProjectTab (newProject);
         newProject.projectTab.domSetup();
         projects.push (newProject);
-        SelectProject(newProject);
+        // setIsEditable(true);
+        SelectProject(newProject, true);
     }
 }
 
@@ -271,17 +272,27 @@ let removeMode = false;
 let currentlySelected = null;
 let taskSection;
 
-function SelectProject (selectedProject) {
+function SelectProject (project, isNew) {
+    if (isNew) {
+        setIsEditable(isNew);
+    } else {
+        setIsEditable(false);
+    }
     if (currentlySelected) {
         currentlySelected.projectTab.hoverNone();
     }
-    currentlySelected = selectedProject;
-    ChangeDisplay(selectedProject);
-    selectedProject.projectTab.selected();
+    currentlySelected = project;
+    project.projectTab.selected();
+    changeProject(project);
 }
+
+function getProject () {
+    return currentlySelected;
+}
+
 
 function initSidebar () {
     sidebar.domSetup();
 }
 
-export {initSidebar, TaskTab, ProjectTab, currentlySelected}
+export {initSidebar, TaskTab, ProjectTab, getProject}

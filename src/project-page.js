@@ -1,5 +1,5 @@
-import { currentlySelected } from "./sidebar";
-import { Task } from "./main";
+import { getProject } from "./sidebar";
+import { Task, getProjectTab } from "./main";
 
 class MainDisplay {
     constructor () {
@@ -25,7 +25,9 @@ class MainDisplay {
         this.projectNotesDom;
 
         this.saveButton;
+        this.editButton;
     }
+
     clearDisplay () {
         let taskEntries = document.querySelectorAll('.task')
 
@@ -44,7 +46,7 @@ class MainDisplay {
         }
     }
 
-    notEditableDomSetup () {
+    isEditableDomSetup () {
         this.titleDom = document.createElement('textarea');
         let title = this.titleDom;
         title.classList.add ('project-title');
@@ -54,12 +56,24 @@ class MainDisplay {
         let description = this.descriptionDom;
         description.classList.add ('project-description');
         projectPage.append (description);
+
+        let buttonWrapper = document.createElement ('div');
+        buttonWrapper.id = 'button-wrapper';
+        projectPage.append (buttonWrapper);
         
         this.saveButton = document.createElement ('button');
         this.saveButton.setAttribute ('id', 'save-button');
+        this.saveButton.enabled = true;
         this.saveButton.textContent = 'Save';
         projectPage.append (this.saveButton);
-        this.saveButton.addEventListener ('click', (e) => this.updateInfo(e));
+        this.saveButton.addEventListener ('click', (e) => this.saveInfo(e));
+
+        this.editButton = document.createElement ('button');
+        this.editButton.setAttribute ('id', 'edit-button');
+        this.editButton.disabled = true;
+        this.editButton.textContent = 'Edit';
+        projectPage.append (this.editButton);
+        this.editButton.addEventListener ('click', (e) => this.editInfo(e));
 
         this.dateDom = document.createElement('textarea');
         let date = this.dateDom;
@@ -77,9 +91,10 @@ class MainDisplay {
         let projectNotes = this.projectNotesDom;
         projectNotes.classList.add ('project-notes');
         projectPage.append (projectNotes);
+        this.projectNotesDom.addEventListener ('input', (e) => this.addNotes(e));
     }
 
-    isEditableDomSetup () {
+    notEditableDomSetup () {
         this.titleDom = document.createElement('div');
         let title = this.titleDom;
         title.classList.add ('project-title');
@@ -89,12 +104,24 @@ class MainDisplay {
         let description = this.descriptionDom;
         description.classList.add ('project-description');
         projectPage.append (description);
+
+        let buttonWrapper = document.createElement ('div');
+        buttonWrapper.id = 'button-wrapper';
+        projectPage.append (buttonWrapper);
         
         this.saveButton = document.createElement ('button');
         this.saveButton.setAttribute ('id', 'save-button');
+        this.saveButton.disabled = true;
         this.saveButton.textContent = 'Save';
-        projectPage.append (this.saveButton);
-        this.saveButton.addEventListener ('click', (e) => this.updateInfo(e));
+        buttonWrapper.append (this.saveButton);
+        this.saveButton.addEventListener ('click', (e) => this.saveInfo(e));
+
+        this.editButton = document.createElement ('button');
+        this.editButton.setAttribute ('id', 'edit-button');
+        this.editButton.enabled = true;
+        this.editButton.textContent = 'Edit';
+        buttonWrapper.append (this.editButton);
+        this.editButton.addEventListener ('click', (e) => this.editInfo(e));
 
         this.dateDom = document.createElement('div');
         let date = this.dateDom;
@@ -112,26 +139,47 @@ class MainDisplay {
         let projectNotes = this.projectNotesDom;
         projectNotes.classList.add ('project-notes');
         projectPage.append (projectNotes);
+        this.projectNotesDom.addEventListener ('input', (e) => this.addNotes(e));
     }
 
     ChangeInfo (selectedProject) {
         this.titleDom.textContent = selectedProject.title
         this.descriptionDom.textContent = selectedProject.description;
         this.dateDom.textContent = selectedProject.date;
-
-        while (this.taskDom.childNodes.length > 1 ) {
-            this.taskDom.removeChild (this.taskDom.lastElementChild);
-        }
+        this.projectNotesDom.value = selectedProject.notes;
 
         selectedProject.tasks.forEach (task => {
             task.taskListEntry.domSetup();
         })
     }
 
-    updateInfo () {
-        currentlySelected.updateInfo(this.titleDom.value)
-        currentlySelected.projectTab.updateInfo(this.titleDom.value, this.dateDom.value);
-        console.log (currentlySelected);
+    saveInfo () {
+        let project = getProject();
+        let projectTab = getProjectTab(project);
+
+        project.title = this.titleDom.value;
+        project.description = this.descriptionDom.value;
+        project.date = this.dateDom.value;
+
+        projectTab.updateInfo();
+
+        this.isEditable = false;
+        this.clearDisplay();
+        this.notEditableDomSetup();
+        this.ChangeInfo(getProject());
+    }
+
+    editInfo () {
+        this.isEditable = true;
+        this.clearDisplay();
+        this.isEditableDomSetup();
+        this.ChangeInfo(getProject());
+    }
+
+    addNotes () {
+        let project = getProject();
+        project.notes = this.projectNotesDom.value;
+        console.log(project.notes);
     }
 }
 
@@ -167,6 +215,7 @@ class addTaskForm {
         formTitleLabel.textContent = 'Task Title:';
         formTitle.append (formTitleLabel);
 
+        this.formTitleInput.required = true;
         this.formTitleInput.setAttribute ('type', 'text');
         this.formTitleInput.setAttribute ('name', 'title');
         this.formTitleInput.setAttribute ('id', 'task-title');
@@ -221,13 +270,15 @@ class addTaskForm {
         event.preventDefault();
     }
     addTask() {
+        let project = getProject();
         let taskTitle = this.formTitleInput;
+        if (!taskTitle.checkValidity()){return console.error('No title entered');}
         let taskDesc = this.formDescInput;
         let taskDate = this.formDateInput;
-        let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, currentlySelected);
+        let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, project);
         newTask.taskListEntry = new TaskCheckListTab (newTask);
         newTask.taskListEntry.domSetup();
-        currentlySelected.tasks.push (newTask);
+        project.tasks.push (newTask);
         console.log (newTask);
         this.form.reset();
     }
@@ -269,13 +320,31 @@ const display = new MainDisplay();
 const projectPage = document.querySelector (".project-page");
 let lastSelected;
 
+function changeProject (project) {
+    display.clearDisplay();
+    if (project.title === "Tasks") {
+        display.notEditableDomSetup();
+        display.editButton.disabled = true;
+        display.ChangeInfo(project);
+        return;
+    }
+
+    if (display.isEditable) {
+        display.isEditableDomSetup();
+    } else {
+        display.notEditableDomSetup();
+    }
+
+    display.ChangeInfo(project);
+}
+
 function InitMainDisplay () {
 
     display.notEditableDomSetup();
 }
 
-function enableEditing () {
-    display.isEditable = display.isEditable ? true : false ;
+function setIsEditable (state) {
+    display.isEditable = state;
 }
 
 function ChangeDisplay(selectedProject) {
@@ -283,4 +352,4 @@ function ChangeDisplay(selectedProject) {
     display.ChangeInfo(selectedProject)
 }
 
-export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, enableEditing}
+export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, setIsEditable, changeProject}

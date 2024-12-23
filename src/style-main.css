@@ -12,6 +12,17 @@ textarea {
     overflow: hidden;
 }
 
+#button-wrapper {
+    display: flex;
+    gap: 5px;
+}
+
+#edit-button {
+	justify-self: center;
+	width: 3rem;
+	height: 2rem;
+}
+
 #save-button {
 	justify-self: center;
 	width: 3rem;

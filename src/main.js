@@ -13,7 +13,7 @@ class Project {
         this.title = title;
         this.description = description;
         this.date = date;
-        this.notes;
+        this.notes = "";
         this.tasks = [];
         this.projectTab;
     }
@@ -37,6 +37,10 @@ class Task {
     }
 }
 
+function getProjectTab (project) {
+    return project.projectTab;
+}
+
 function initMain () {
     InitMainDisplay();
     initSidebar();
@@ -44,4 +48,4 @@ function initMain () {
 
 initMain();
 
-export {containerDiv, projects, Project, Task}
+export {containerDiv, projects, Project, Task, getProjectTab}
