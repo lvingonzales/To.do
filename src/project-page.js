@@ -3,6 +3,8 @@ import { Task } from "./main";
 
 class MainDisplay {
     constructor () {
+        this.isEditable;
+
         this.titleText;
         this.titleDom;
 
@@ -24,8 +26,25 @@ class MainDisplay {
 
         this.saveButton;
     }
+    clearDisplay () {
+        let taskEntries = document.querySelectorAll('.task')
 
-    domSetup (projectPage) {
+        taskEntries.forEach (element => {
+            while (element.lastElementChild) {
+                element.removeChild (element.lastElementChild);
+            }
+        })
+
+        while (this.taskDom.childNodes.length > 1 ) {
+            this.taskDom.removeChild (this.taskDom.lastElementChild);
+        }
+
+        while (projectPage.lastElementChild) {
+            projectPage.removeChild (projectPage.lastElementChild);
+        }
+    }
+
+    notEditableDomSetup () {
         this.titleDom = document.createElement('textarea');
         let title = this.titleDom;
         title.classList.add ('project-title');
@@ -60,26 +79,45 @@ class MainDisplay {
         projectPage.append (projectNotes);
     }
 
+    isEditableDomSetup () {
+        this.titleDom = document.createElement('div');
+        let title = this.titleDom;
+        title.classList.add ('project-title');
+        projectPage.append (title);
+
+        this.descriptionDom = document.createElement('div');
+        let description = this.descriptionDom;
+        description.classList.add ('project-description');
+        projectPage.append (description);
+        
+        this.saveButton = document.createElement ('button');
+        this.saveButton.setAttribute ('id', 'save-button');
+        this.saveButton.textContent = 'Save';
+        projectPage.append (this.saveButton);
+        this.saveButton.addEventListener ('click', (e) => this.updateInfo(e));
+
+        this.dateDom = document.createElement('div');
+        let date = this.dateDom;
+        date.classList.add ('project-date');
+        projectPage.append (date);
+
+        this.taskDom = document.createElement('div');
+        let task = this.taskDom;
+        task.classList.add ('task-checklist');
+        projectPage.append (task);
+        let taskForm = new addTaskForm();
+        taskForm.domSetup();
+
+        this.projectNotesDom = document.createElement('textarea');
+        let projectNotes = this.projectNotesDom;
+        projectNotes.classList.add ('project-notes');
+        projectPage.append (projectNotes);
+    }
+
     ChangeInfo (selectedProject) {
         this.titleDom.textContent = selectedProject.title
         this.descriptionDom.textContent = selectedProject.description;
         this.dateDom.textContent = selectedProject.date;
-
-        if (selectedProject.title === 'Tasks') {
-            this.titleDom.setAttribute ('disabled', '');
-            this.descriptionDom.setAttribute ('disabled', '');
-            this.dateDom.setAttribute ('disabled', '');
-        } else {
-            this.titleDom.removeAttribute ('disabled');
-            this.descriptionDom.removeAttribute ('disabled');
-            this.dateDom.removeAttribute ('disabled');
-        }
-
-        lastSelected.tasks.forEach(task => {
-            while (task.taskListEntry.domElement.lastElementChild) {
-                task.taskListEntry.domElement.removeChild (task.taskListEntry.domElement.lastElementChild);
-            }
-        })
 
         while (this.taskDom.childNodes.length > 1 ) {
             this.taskDom.removeChild (this.taskDom.lastElementChild);
@@ -228,15 +266,16 @@ class TaskCheckListTab {
 }
 
 const display = new MainDisplay();
+const projectPage = document.querySelector (".project-page");
 let lastSelected;
 
-function InitMainDisplay (contentDiv) {
-    
-    let projectPageDiv = document.createElement ('div');
-    projectPageDiv.classList.add ('project-page');
-    contentDiv.append (projectPageDiv);
+function InitMainDisplay () {
 
-    display.domSetup(projectPageDiv);
+    display.notEditableDomSetup();
+}
+
+function enableEditing () {
+    display.isEditable = display.isEditable ? true : false ;
 }
 
 function ChangeDisplay(selectedProject) {
@@ -244,4 +283,4 @@ function ChangeDisplay(selectedProject) {
     display.ChangeInfo(selectedProject)
 }
 
-export {InitMainDisplay, ChangeDisplay, TaskCheckListTab}
+export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, enableEditing}

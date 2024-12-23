@@ -1,7 +1,7 @@
 import { containerDiv, projects, Project} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
-import { ChangeDisplay } from "./project-page";
+import { ChangeDisplay, enableEditing } from "./project-page";
 
 class ProjectTab {
     constructor (parent) {

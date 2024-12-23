@@ -38,10 +38,7 @@ class Task {
 }
 
 function initMain () {
-    let contentDiv = document.createElement('div');
-    contentDiv.classList.add ("content");
-    containerDiv.append (contentDiv);
-    InitMainDisplay(contentDiv);
+    InitMainDisplay();
     initSidebar();
 }
 
