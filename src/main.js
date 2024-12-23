@@ -3,6 +3,7 @@ import "./style-sidebar.css";
 import "./style-main.css";
 import { initSidebar, ProjectTab, TaskTab } from "./sidebar.js";
 import { InitMainDisplay } from "./project-page.js";
+
 const containerDiv = document.querySelector(".container");
 
 const projects = [];

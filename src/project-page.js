@@ -1,5 +1,6 @@
 import { getProject } from "./sidebar";
 import { Task, getProjectTab } from "./main";
+import { addTaskDisplay } from "./tasklist";
 
 class MainDisplay {
     constructor () {
@@ -275,6 +276,7 @@ class addTaskForm {
         let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, project);
         newTask.taskListEntry = new TaskCheckListTab (newTask);
         newTask.taskListEntry.domSetup();
+        newTask.TaskDisplay = addTaskDisplay(newTask);
         project.tasks.push (newTask);
         console.log (newTask);
         this.form.reset();

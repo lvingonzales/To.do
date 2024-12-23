@@ -2,6 +2,7 @@ import { containerDiv, projects, Project} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
 import { ChangeDisplay, changeProject, enableEditing, setIsEditable } from "./project-page";
+import { clearTaskList, loadTaskList } from "./tasklist";
 
 class ProjectTab {
     constructor (parent) {
@@ -290,6 +291,8 @@ function SelectProject (project, isNew) {
     currentlySelected = project;
     project.projectTab.selected();
     changeProject(project);
+    clearTaskList();
+    loadTaskList(project);
 }
 
 
