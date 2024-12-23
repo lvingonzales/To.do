@@ -29,7 +29,7 @@ class Task {
         this.title = title;
         this.description = description;
         this.date = date;
-        this.notes;
+        this.notes = "";
         this.project = project;
         this.taskListEntry;
         this.taskDisplay;
@@ -39,7 +39,6 @@ class Task {
 function getProjectTab (project) {
     return project.projectTab;
 }
-
 
 function initMain () {
     InitMainDisplay();
