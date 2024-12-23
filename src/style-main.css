@@ -13,6 +13,7 @@ textarea {
 }
 
 #button-wrapper {
+    grid-column-start: 10;
     display: flex;
     gap: 5px;
 }

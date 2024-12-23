@@ -65,14 +65,14 @@ class MainDisplay {
         this.saveButton.setAttribute ('id', 'save-button');
         this.saveButton.enabled = true;
         this.saveButton.textContent = 'Save';
-        projectPage.append (this.saveButton);
+        buttonWrapper.append (this.saveButton);
         this.saveButton.addEventListener ('click', (e) => this.saveInfo(e));
 
         this.editButton = document.createElement ('button');
         this.editButton.setAttribute ('id', 'edit-button');
         this.editButton.disabled = true;
         this.editButton.textContent = 'Edit';
-        projectPage.append (this.editButton);
+        buttonWrapper.append (this.editButton);
         this.editButton.addEventListener ('click', (e) => this.editInfo(e));
 
         this.dateDom = document.createElement('textarea');
@@ -156,10 +156,7 @@ class MainDisplay {
     saveInfo () {
         let project = getProject();
         let projectTab = getProjectTab(project);
-
-        project.title = this.titleDom.value;
-        project.description = this.descriptionDom.value;
-        project.date = this.dateDom.value;
+        project.updateInfo(this.titleDom.value, this.descriptionDom.value, this.dateDom.value);
 
         projectTab.updateInfo();
 
@@ -318,7 +315,6 @@ class TaskCheckListTab {
 
 const display = new MainDisplay();
 const projectPage = document.querySelector (".project-page");
-let lastSelected;
 
 function changeProject (project) {
     display.clearDisplay();

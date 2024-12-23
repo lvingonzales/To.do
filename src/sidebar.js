@@ -65,7 +65,9 @@ class ProjectTab {
             this.domElement.remove();
             projects.splice(index, 1);
             sidebar.removeButton.CheckProjects();
-            SelectProject(taskSection);
+            if (getProject().title !== "Tasks") {
+                SelectProject(taskSection);
+            }
         } else {
             SelectProject(this.project);
         }
@@ -279,12 +281,18 @@ function SelectProject (project, isNew) {
         setIsEditable(false);
     }
     if (currentlySelected) {
-        currentlySelected.projectTab.hoverNone();
+        if (removeMode) {
+            currentlySelected.projectTab.hoverRed();
+        } else {
+            currentlySelected.projectTab.hoverNone();
+        }
     }
     currentlySelected = project;
     project.projectTab.selected();
     changeProject(project);
 }
+
+
 
 function getProject () {
     return currentlySelected;
