@@ -59,7 +59,6 @@ class TaskDisplay {
         this.description.classList.add ('list-description');
         this.dates.classList.add ('list-date');
         this.notes.classList.add ('list-notes');
-
     }
 
     appendElements () {

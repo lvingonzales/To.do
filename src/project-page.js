@@ -276,7 +276,7 @@ class addTaskForm {
         let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, project);
         newTask.taskListEntry = new TaskCheckListTab (newTask);
         newTask.taskListEntry.domSetup();
-        newTask.TaskDisplay = addTaskDisplay(newTask);
+        newTask.taskDisplay = addTaskDisplay(newTask);
         project.tasks.push (newTask);
         console.log (newTask);
         this.form.reset();
