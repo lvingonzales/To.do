@@ -83,3 +83,10 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.list-boxes {
+    border: 1px solid blue;
+    border-radius: 2px;
+}
+
+

@@ -35,6 +35,12 @@ class Task {
         this.taskListEntry;
         this.taskDisplay;
     }
+    updateInfo (title, desc, date) {
+        this.title = title;
+        this.description = desc;
+        this.date = date;
+        console.log(this);
+    }
 }
 
 function getProjectTab (project) {

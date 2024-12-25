@@ -286,32 +286,44 @@ class addTaskForm {
 class TaskCheckListTab {
     constructor (task) {
         this.task = task;
-        this.title = task.title;
-        this.date = task.date;
+        this.checkbox = document.createElement ('input')
+        this.title = document.createElement ('label')
+        this.date = document.createElement ('div')
         this.domElement = document.createElement ('div');
     }
     domSetup () {
-        console.error (`Creating task checklist`);
         let element = this.domElement;
         element.classList.add ('task');
         display.taskDom.append (element);
 
-        let title = document.createElement ('input');
+        this.checkbox.type = 'checkbox';
+        this.checkbox.id = 'task-title';
+        this.checkbox.name = 'task-title';
+        element.append (this.checkbox);
+        this.checkbox.addEventListener('click', (e) => this.validate(e));
 
-        title.setAttribute ("type", "checkbox");
-        title.setAttribute ("id", "task-title");
-        title.setAttribute ("name", "task-title");
-        element.append (title);
-
-        let titleLabel = document.createElement ('label');
-        titleLabel.setAttribute ("for", "task-title");
-        titleLabel.textContent = this.title;
-        element.append (titleLabel);
+        this.title.for = 'task-title'
+        this.title.textContent = this.task.title;
+        element.append (this.title);
         
-        let taskDate = document.createElement ('div');
-        taskDate.classList.add ('task-date');
-        taskDate.textContent = this.date;
-        element.append (taskDate);
+        this.date = document.createElement ('div');
+        this.date.classList.add ('task-date');
+        this.date.textContent = this.task.date;
+        element.append (this.date);
+    }
+
+    updateInfo () {
+        this.title.textContent = this.task.title;
+        this.date.textContent = this.task.date;
+        
+    }
+
+    validate () {
+        if (this.checkbox.checked) {
+            this.domElement.classList.add ('complete-task');
+        } else {
+            this.domElement.classList.remove ('complete-task');
+        }
     }
 }
 

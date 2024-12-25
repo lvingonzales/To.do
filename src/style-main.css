@@ -84,6 +84,11 @@ textarea {
     /* width: 600px; */
 }
 
+.complete-task {
+    text-decoration: line-through;
+    color: red;
+}
+
 .form-fields {
     display: grid;
     grid-template-columns: repeat(6, 1fr);

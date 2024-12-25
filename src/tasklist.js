@@ -13,7 +13,9 @@ class TaskDisplay {
         this.listButtonWrapper = document.createElement ('div');
         this.listButtonWrapper.id = 'list-buttons';
         this.saveButton = document.createElement('button');
+        this.saveButton.addEventListener ('click', (e) => this.saveInfo(e));
         this.editButton = document.createElement('button');
+        this.editButton.addEventListener ('click', (e) => this.editInfo(e));
     }
     
     isEditableDomSetup () {
@@ -25,9 +27,18 @@ class TaskDisplay {
         
         this.notes = document.createElement ('textarea');
 
+        this.editButton.disabled = "true";
+        this.saveButton.enabled = "true";
+
+        
+
         this.classSetup();
         this.appendElements();
         this.fillInfo();
+        let elements = this.mainDiv.querySelectorAll ('textarea');
+        elements.forEach (element => {
+            element.classList.add ('list-boxes');
+        });
     }
 
     nonEditableDomSetup () {
@@ -44,6 +55,44 @@ class TaskDisplay {
         this.fillInfo()
     }
 
+    replaceElements () {
+        if (this.isEditable) {
+            this.title = document.createElement ('div');
+            document.querySelector('.list-title').replaceWith(this.title);
+    
+            this.description = document.createElement ('div');
+            document.querySelector('.list-description').replaceWith(this.description);
+        
+            this.dates = document.createElement ('div');
+            document.querySelector('.list-date').replaceWith(this.dates);
+
+            this.saveButton.disabled = true;
+            this.editButton.disabled = false;
+            this.isEditable = false;
+        } else {
+            this.title = document.createElement ('textarea');
+            document.querySelector('.list-title').replaceWith(this.title);
+        
+            this.description = document.createElement ('textarea');
+            document.querySelector('.list-description').replaceWith(this.description);
+       
+            this.dates = document.createElement ('textarea');
+            document.querySelector('.list-date').replaceWith(this.dates);
+
+            let elements = this.mainDiv.querySelectorAll ('textarea');
+            elements.forEach (element => {
+                element.classList.add ('list-boxes');
+            });
+
+            this.saveButton.disabled = false;
+            this.editButton.disabled = true;
+            this.isEditable = true;
+        }
+        
+        this.classSetup();
+        this.fillInfo();
+    }
+
     fillInfo () {
         this.title.textContent = this.task.title;
         this.description.textContent = this.task.description;
@@ -51,6 +100,11 @@ class TaskDisplay {
         this.notes.textContent = this.task.notes;
         this.saveButton.textContent = `Save`;
         this.editButton.textContent = `Edit`;
+
+        this.title.placeholder = 'Enter a Title';
+        this.description.placeholder = 'Enter a description.'
+        this.dates.placeholder = '--/--/----';
+        this.notes.placeholder = 'Enter your notes.'
     }
     
 
@@ -62,9 +116,18 @@ class TaskDisplay {
     }
 
     appendElements () {
-        taskList.append (this.mainDiv);
         this.mainDiv.append (this.title, this.description, this.dates, this.notes, this.listButtonWrapper);
         this.listButtonWrapper.append (this.saveButton, this.editButton);
+    }
+
+    saveInfo () {
+        this.task.updateInfo (this.title.value, this.description.value, this.dates.value);
+        this.task.taskListEntry.updateInfo();
+        this.replaceElements();
+    }
+
+    editInfo () {
+        this.replaceElements();
     }
 }
 
@@ -89,6 +152,7 @@ function addTaskDisplay (task) {
     let newTaskDisplay = new TaskDisplay (task);
     newTaskDisplay.isEditable = true;
     newTaskDisplay.isEditableDomSetup();
+    taskList.append (newTaskDisplay.mainDiv);
     return newTaskDisplay.mainDiv;
 }
 
