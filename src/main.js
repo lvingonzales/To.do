@@ -6,7 +6,7 @@ import { InitMainDisplay } from "./project-page.js";
 
 const containerDiv = document.querySelector(".container");
 
-const projects = [];
+const projects = JSON.parse(localStorage.getItem ('projects') || '[]');
 
 class Project {
     constructor (title, description, date) {
@@ -18,11 +18,6 @@ class Project {
         this.tasks = [];
         this.projectTab;
     }
-    updateInfo (title, desc, date) {
-        this.title = title;
-        this.description = desc;
-        this.date = date;
-    }
 }
 
 class Task {
@@ -31,16 +26,16 @@ class Task {
         this.description = description;
         this.date = date;
         this.notes = "";
-        this.project = project;
+        //this.project = project;
         this.taskListEntry;
         this.taskDisplay;
     }
-    updateInfo (title, desc, date) {
-        this.title = title;
-        this.description = desc;
-        this.date = date;
-        console.log(this);
-    }
+}
+
+function updateInfo (object, title, desc, date) {
+    object.title = title;
+    object.description = desc;
+    object.date = date;
 }
 
 function getProjectTab (project) {
@@ -52,6 +47,14 @@ function initMain () {
     initSidebar();
 }
 
+function updateStorage() {
+    localStorage.setItem ('projects', JSON.stringify(projects));
+    let foo = JSON.parse(localStorage.getItem ('projects'));
+    console.log (foo);
+}
+
+console.log (localStorage.getItem ('projects'));
+
 initMain();
 
-export {containerDiv, projects, Project, Task, getProjectTab}
+export {containerDiv, projects, Project, Task, getProjectTab, updateInfo, updateStorage}

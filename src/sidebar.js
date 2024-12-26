@@ -1,4 +1,4 @@
-import { containerDiv, projects, Project} from "./main";
+import { containerDiv, projects, Project, updateStorage} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
 import { ChangeDisplay, changeProject, enableEditing, setIsEditable } from "./project-page";
@@ -218,6 +218,7 @@ class SidebarButtons {
         newProject.projectTab = new ProjectTab (newProject);
         newProject.projectTab.domSetup();
         projects.push (newProject);
+        updateStorage();
         // setIsEditable(true);
         SelectProject(newProject, true);
     }

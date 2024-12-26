@@ -1,5 +1,5 @@
 import { getProject } from "./sidebar";
-import { Task, getProjectTab } from "./main";
+import { Task, getProjectTab, updateInfo } from "./main";
 import { addTaskDisplay } from "./tasklist";
 
 class MainDisplay {
@@ -76,7 +76,10 @@ class MainDisplay {
         buttonWrapper.append (this.editButton);
         this.editButton.addEventListener ('click', (e) => this.editInfo(e));
 
-        this.dateDom = document.createElement('textarea');
+        let lastDate = this.dateDom.textContent;
+        this.dateDom = document.createElement('input');
+        this.dateDom.type = "date";
+        this.dateDom.defaultValue = lastDate;
         let date = this.dateDom;
         date.classList.add ('project-date');
         projectPage.append (date);
@@ -157,7 +160,7 @@ class MainDisplay {
     saveInfo () {
         let project = getProject();
         let projectTab = getProjectTab(project);
-        project.updateInfo(this.titleDom.value, this.descriptionDom.value, this.dateDom.value);
+        updateInfo(project, this.titleDom.value, this.descriptionDom.value, this.dateDom.value);
 
         projectTab.updateInfo();
 
@@ -315,7 +318,6 @@ class TaskCheckListTab {
     updateInfo () {
         this.title.textContent = this.task.title;
         this.date.textContent = this.task.date;
-        
     }
 
     validate () {

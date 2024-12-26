@@ -60,12 +60,12 @@ body {
 }
 
 .list-title {
-    grid-area: 1 / 1 / 3 / 11;
+    grid-area: 1 / 1 / 3 / 10;
     font-size: 1.5rem;
 }
 
 .list-date {
-    grid-area: 1 / 11 / 2 / 13;
+    grid-area: 1 / 10 / 3 / 13;
 }
 
 .list-description {
