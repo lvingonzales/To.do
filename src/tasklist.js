@@ -1,11 +1,11 @@
-import { updateInfo } from "./main";
+import { getTask, getTasks, updateInfo } from "./main";
 
 class TaskDisplay {
     constructor(task){
         this.isEditable = false;
         this.mainDiv = document.createElement('div');
         this.mainDiv.classList.add ('list-entry');
-        this.task = task;
+        this.taskId = task.id;
         this.title;
         this.description;
         this.dates;
@@ -101,10 +101,12 @@ class TaskDisplay {
     }
 
     fillInfo () {
-        this.title.textContent = this.task.title;
-        this.description.textContent = this.task.description;
-        this.dates.textContent = this.task.date;
-        this.notes.textContent = this.task.notes;
+        let task = getTask (this.taskId);
+
+        this.title.textContent = task.title;
+        this.description.textContent = task.description;
+        this.dates.textContent = task.date;
+        this.notes.textContent = task.notes;
         this.saveButton.textContent = `Save`;
         this.editButton.textContent = `Edit`;
 
@@ -128,8 +130,8 @@ class TaskDisplay {
     }
 
     saveInfo () {
-        updateInfo (this.task,this.title.value, this.description.value, this.dates.value);
-        this.task.taskListEntry.updateInfo();
+        updateInfo (getTask(this.taskId),this.title.value, this.description.value, this.dates.value);
+        getTask(this.taskId).taskListEntry.updateInfo();
         this.replaceElements();
     }
 
@@ -147,7 +149,7 @@ function clearTaskList () {
 }
 
 function loadTaskList (project) {
-    let tasks = project.tasks;
+    let tasks = getTasks(project.id);
     if (tasks.length === 0) {return;}
     tasks.forEach(task => {
         let taskDisplay = task.taskDisplay;

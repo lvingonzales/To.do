@@ -1,14 +1,14 @@
-import { containerDiv, projects, Project, updateStorage} from "./main";
+import { containerDiv, projects, Project, updateStorage, getProject} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
 import { ChangeDisplay, changeProject, enableEditing, setIsEditable } from "./project-page";
 import { clearTaskList, loadTaskList } from "./tasklist";
 
 class ProjectTab {
-    constructor (parent) {
-        this.project = parent;
-        this.title = parent.title;
-        this.date = parent.date;
+    constructor (project) {
+        this.projectId = project.id;
+        this.title = project.title;
+        this.date = project.date;
         this.domElement = document.createElement ('div');
         this.hoverNone = () => {
             this.domElement.style.backgroundColor = "transparent"
@@ -56,8 +56,10 @@ class ProjectTab {
         while (this.domElement.lastElementChild) {
             this.domElement.removeChild (this.domElement.lastElementChild);
         }
-        this.title = this.project.title;
-        this.date = this.project.date;
+
+        let project = getProject(this.projectId);
+        this.title = project.title;
+        this.date = project.date;
         this.domSetup();
     }
     OnMouseClick() {
@@ -66,18 +68,18 @@ class ProjectTab {
             this.domElement.remove();
             projects.splice(index, 1);
             sidebar.removeButton.CheckProjects();
-            if (getProject().title !== "Tasks") {
+            if (getCurrentProject().title !== "Tasks") {
                 SelectProject(taskSection);
             }
         } else {
-            SelectProject(this.project);
+            SelectProject(getProject(this.projectId));
         }
     }
     OnMouseOver() {
         if (removeMode) {
             this.hoverRed();
         } else {
-            if(currentlySelected !== this.project){
+            if(currentlySelected.id !== this.projectId){
                 this.hoverGrey();
             }
             
@@ -89,7 +91,7 @@ class ProjectTab {
             this.rModeActive();
         }
         else {
-            if (currentlySelected !== this.project){
+            if (currentlySelected.id !== this.projectId){
                 this.hoverNone();
             }
         }
@@ -97,8 +99,8 @@ class ProjectTab {
 }
 
 class TaskTab {
-    constructor (project) {
-        this.project = project;
+    constructor () {
+        this.projectId = 0;
         this.hoverNone = () => {
             this.domElement.style.backgroundColor = "transparent"
             this.domElement.style.color = "black";
@@ -121,15 +123,15 @@ class TaskTab {
     }
 
     OnMouseClick () {
-        SelectProject(this.project);
+        SelectProject(getProject(this.projectId));
     }
 
     OnMouseOver () {
-        if (currentlySelected !== this.project ) this.hoverGrey();
+        if (currentlySelected.id !== this.projectId ) this.hoverGrey();
     }
 
     OnMouseOut() {
-        if (currentlySelected !== this.project ) this.hoverNone();
+        if (currentlySelected.id !== this.projectId ) this.hoverNone();
     }
 }
 
@@ -212,13 +214,11 @@ class SidebarButtons {
     }
     
     AddProject () {
-        // let newName;
-        // if (!(newName = (prompt(`Enter a name for your project: `)))) return;
         let newProject = new Project("Project Name", "Project Description", "--/--/----");
         newProject.projectTab = new ProjectTab (newProject);
         newProject.projectTab.domSetup();
         projects.push (newProject);
-        updateStorage();
+        //updateStorage();
         // setIsEditable(true);
         SelectProject(newProject, true);
     }
@@ -298,7 +298,7 @@ function SelectProject (project, isNew) {
 
 
 
-function getProject () {
+function getCurrentProject () {
     return currentlySelected;
 }
 
@@ -307,4 +307,4 @@ function initSidebar () {
     sidebar.domSetup();
 }
 
-export {initSidebar, TaskTab, ProjectTab, getProject}
+export {initSidebar, TaskTab, ProjectTab, getCurrentProject}

@@ -1,5 +1,5 @@
-import { getProject } from "./sidebar";
-import { Task, getProjectTab, updateInfo } from "./main";
+import { getCurrentProject } from "./sidebar";
+import { Task, getProjectTab, updateInfo, getTasks, getTask, pushTask } from "./main";
 import { addTaskDisplay } from "./tasklist";
 
 class MainDisplay {
@@ -152,13 +152,15 @@ class MainDisplay {
         this.dateDom.textContent = selectedProject.date;
         this.projectNotesDom.value = selectedProject.notes;
 
-        selectedProject.tasks.forEach (task => {
+        let tasks = getTasks(selectedProject.id);
+
+        tasks.forEach (task => {
             task.taskListEntry.domSetup();
         })
     }
 
     saveInfo () {
-        let project = getProject();
+        let project = getCurrentProject();
         let projectTab = getProjectTab(project);
         updateInfo(project, this.titleDom.value, this.descriptionDom.value, this.dateDom.value);
 
@@ -167,18 +169,18 @@ class MainDisplay {
         this.isEditable = false;
         this.clearDisplay();
         this.notEditableDomSetup();
-        this.ChangeInfo(getProject());
+        this.ChangeInfo(getCurrentProject());
     }
 
     editInfo () {
         this.isEditable = true;
         this.clearDisplay();
         this.isEditableDomSetup();
-        this.ChangeInfo(getProject());
+        this.ChangeInfo(getCurrentProject());
     }
 
     addNotes () {
-        let project = getProject();
+        let project = getCurrentProject();
         project.notes = this.projectNotesDom.value;
         console.log(project.notes);
     }
@@ -271,30 +273,32 @@ class addTaskForm {
         event.preventDefault();
     }
     addTask() {
-        let project = getProject();
+        let project = getCurrentProject();
         let taskTitle = this.formTitleInput;
         if (!taskTitle.checkValidity()){return console.error('No title entered');}
         let taskDesc = this.formDescInput;
         let taskDate = this.formDateInput;
         let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, project);
+        console.log (newTask);
         newTask.taskListEntry = new TaskCheckListTab (newTask);
+        pushTask(newTask);
         newTask.taskListEntry.domSetup();
         newTask.taskDisplay = addTaskDisplay(newTask);
-        project.tasks.push (newTask);
-        console.log (newTask);
         this.form.reset();
     }
 }
 
 class TaskCheckListTab {
     constructor (task) {
-        this.task = task;
+        this.taskId = task.id;
         this.checkbox = document.createElement ('input')
         this.title = document.createElement ('label')
         this.date = document.createElement ('div')
         this.domElement = document.createElement ('div');
     }
     domSetup () {
+        let task = getTask(this.taskId);
+        console.log (task);
         let element = this.domElement;
         element.classList.add ('task');
         display.taskDom.append (element);
@@ -306,18 +310,19 @@ class TaskCheckListTab {
         this.checkbox.addEventListener('click', (e) => this.validate(e));
 
         this.title.for = 'task-title'
-        this.title.textContent = this.task.title;
+        this.title.textContent = task.title;
         element.append (this.title);
         
         this.date = document.createElement ('div');
         this.date.classList.add ('task-date');
-        this.date.textContent = this.task.date;
+        this.date.textContent = task.date;
         element.append (this.date);
     }
 
     updateInfo () {
-        this.title.textContent = this.task.title;
-        this.date.textContent = this.task.date;
+        let task = getTask (this.taskId);
+        this.title.textContent = task.title;
+        this.date.textContent = task.date;
     }
 
     validate () {
