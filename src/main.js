@@ -1,14 +1,27 @@
 import "./style.css";
 import "./style-sidebar.css";
 import "./style-main.css";
-import { initSidebar, ProjectTab, TaskTab } from "./sidebar.js";
+import {initSidebar} from "./sidebar.js";
 import { InitMainDisplay } from "./project-page.js";
 
+//localStorage.clear();
 const containerDiv = document.querySelector(".container");
-let projectIdCounter = 0;
-let taskIdCounter = 0;
-const projects = [];
-const tasks = [];
+let projectIdCounter;
+let taskIdCounter;
+let projects = JSON.parse(localStorage.getItem("projects") || "[]");
+let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+if (!Array.isArray(projects) || !projects.length) {
+    projectIdCounter = 0;
+} else {
+    projectIdCounter = projects.findLast(element => element).id + 1;
+}
+
+if (!Array.isArray(tasks) || !tasks.length) {
+    taskIdCounter = 0;
+} else {
+    taskIdCounter = tasks.findLast(element => element).id + 1;
+}
 
 class Project {
     constructor (title, description, date) {
@@ -30,7 +43,6 @@ class Task {
         this.notes = "";
         this.projectId = project.id;
         this.taskListEntry;
-        this.taskDisplay;
     }
 }
 
@@ -41,16 +53,16 @@ function updateInfo (object, title, desc, date) {
 }
 
 function getTasks (projectId) {
-    return tasks.map (task => task.projectid === projectId);
+    return tasks.filter (task => task.projectId === projectId);
 }
 
 function pushTask (newTask) {
     tasks.push (newTask);
+    localStorage.setItem ("tasks", JSON.stringify(tasks));
+    console.log (JSON.parse(localStorage.getItem('tasks') || "[]"));
 }
 
 function getTask (id) {
-    console.log (id);
-    console.log (tasks);
     let task = tasks.find (task => task.id === id);
     return task;
 }
@@ -65,8 +77,17 @@ function getProjectTab (project) {
 }
 
 function initMain () {
-    InitMainDisplay();
-    initSidebar();
+    let taskTab;
+    if (!Array.isArray(projects) || !projects.length) {
+        taskTab = new Project ("Tasks", "These are your unorganized tasks.", "");
+        projects.push (taskTab);
+        localStorage.setItem ('projects', JSON.stringify(projects));
+    } else {
+        taskTab = projects[0];
+    }
+    initSidebar(taskTab);
+    InitMainDisplay(taskTab);
+    //taskTab.projectTab.selected();
 }
 
 function updateStorage() {

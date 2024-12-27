@@ -1,5 +1,5 @@
-import { getCurrentProject } from "./sidebar";
 import { Task, getProjectTab, updateInfo, getTasks, getTask, pushTask } from "./main";
+import { getSelectedProject, SelectProject } from "./sidebar";
 import { addTaskDisplay } from "./tasklist";
 
 class MainDisplay {
@@ -152,35 +152,32 @@ class MainDisplay {
         this.dateDom.textContent = selectedProject.date;
         this.projectNotesDom.value = selectedProject.notes;
 
-        let tasks = getTasks(selectedProject.id);
-
-        tasks.forEach (task => {
-            task.taskListEntry.domSetup();
-        })
+        
+            //task.taskListEntry.domSetup();
     }
 
     saveInfo () {
-        let project = getCurrentProject();
+        let project = getSelectedProject();
         let projectTab = getProjectTab(project);
         updateInfo(project, this.titleDom.value, this.descriptionDom.value, this.dateDom.value);
 
-        projectTab.updateInfo();
+        projectTab.updateInfo(project);
 
         this.isEditable = false;
         this.clearDisplay();
         this.notEditableDomSetup();
-        this.ChangeInfo(getCurrentProject());
+        this.ChangeInfo(getSelectedProject());
     }
 
     editInfo () {
         this.isEditable = true;
         this.clearDisplay();
         this.isEditableDomSetup();
-        this.ChangeInfo(getCurrentProject());
+        this.ChangeInfo(getSelectedProject());
     }
 
     addNotes () {
-        let project = getCurrentProject();
+        let project = getSelectedProject();
         project.notes = this.projectNotesDom.value;
         console.log(project.notes);
     }
@@ -224,7 +221,6 @@ class addTaskForm {
         this.formTitleInput.setAttribute ('id', 'task-title');
         this.formTitleInput.setAttribute ('autocomplete', 'off');
         formTitle.append (this.formTitleInput);
-        console.log (this.formTitleInput);
 
         let formDesc = document.createElement ('div');
         let formDescLabel = document.createElement ('label');
@@ -273,17 +269,16 @@ class addTaskForm {
         event.preventDefault();
     }
     addTask() {
-        let project = getCurrentProject();
+        let project = getSelectedProject();
         let taskTitle = this.formTitleInput;
         if (!taskTitle.checkValidity()){return console.error('No title entered');}
         let taskDesc = this.formDescInput;
         let taskDate = this.formDateInput;
         let newTask = new Task (taskTitle.value, taskDesc.value, taskDate.value, project);
         console.log (newTask);
-        newTask.taskListEntry = new TaskCheckListTab (newTask);
         pushTask(newTask);
-        newTask.taskListEntry.domSetup();
-        newTask.taskDisplay = addTaskDisplay(newTask);
+        addTaskDisplay(newTask);
+        addTaskCheckBox(newTask);
         this.form.reset();
     }
 }
@@ -334,6 +329,13 @@ class TaskCheckListTab {
     }
 }
 
+function addTaskCheckBox (task) {
+    let newTaskBox = new TaskCheckListTab(task);
+    newTaskBox.domSetup();
+    newTaskBox.updateInfo();
+    newTaskBox.validate();
+}
+
 const display = new MainDisplay();
 const projectPage = document.querySelector (".project-page");
 
@@ -343,6 +345,7 @@ function changeProject (project) {
         display.notEditableDomSetup();
         display.editButton.disabled = true;
         display.ChangeInfo(project);
+        loadTaskWidgets(project);
         return;
     }
 
@@ -355,9 +358,16 @@ function changeProject (project) {
     display.ChangeInfo(project);
 }
 
-function InitMainDisplay () {
-
+function InitMainDisplay (taskTab) {
     display.notEditableDomSetup();
+    SelectProject(taskTab);
+    let tasks = getTasks (taskTab.id);
+
+    // tasks.forEach (task => {
+    //     task.taskListEntry = new TaskCheckListTab (task);
+    //     task.taskListEntry.domSetup();
+    //     task.taskDisplay = addTaskDisplay(task);
+    // })
 }
 
 function setIsEditable (state) {
@@ -366,7 +376,16 @@ function setIsEditable (state) {
 
 function ChangeDisplay(selectedProject) {
     lastSelected = selectedProject;
-    display.ChangeInfo(selectedProject)
+    display.ChangeInfo(selectedProject);
 }
 
-export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, setIsEditable, changeProject}
+function loadTaskWidgets (project) {
+    let tasks = getTasks(project.id);
+    if (!Array.isArray (tasks) || !tasks.length) {return;}
+        
+    tasks.forEach (task => {
+        addTaskCheckBox(task);
+        addTaskDisplay(task);
+    });
+}
+export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, setIsEditable, changeProject};

@@ -1,14 +1,14 @@
-import { containerDiv, projects, Project, updateStorage, getProject} from "./main";
+import { containerDiv, projects, Project, getProject} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
-import { ChangeDisplay, changeProject, enableEditing, setIsEditable } from "./project-page";
+import { changeProject, setIsEditable } from "./project-page";
 import { clearTaskList, loadTaskList } from "./tasklist";
 
 class ProjectTab {
     constructor (project) {
         this.projectId = project.id;
-        this.title = project.title;
-        this.date = project.date;
+        this.title = document.createElement ('span');
+        this.date = document.createElement ('span');
         this.domElement = document.createElement ('div');
         this.hoverNone = () => {
             this.domElement.style.backgroundColor = "transparent"
@@ -28,61 +28,59 @@ class ProjectTab {
     
     domSetup() {
         const projectPane = sidebar.projectPane;
+        let project = getProject(this.projectId);
+        console.log (project.id)
 
         let projectSideDiv = this.domElement;
         projectSideDiv.classList.add ('project', 'side');
         projectPane.append (projectSideDiv);
         projectSideDiv.dataset.func = "project";
+        console.log (`add listeners`);
         projectSideDiv.addEventListener("mouseover", (e) => this.OnMouseOver(e));
         projectSideDiv.addEventListener("mouseout", (e) => this.OnMouseOut(e));
-        projectSideDiv.addEventListener("click", (e) => this.OnMouseClick(e));
+        projectSideDiv.addEventListener("click", (e) => {
+            console.log (e.target);
+            this.OnMouseClick(e)
+        });
 
         let statusDiv = document.createElement ('div');
         statusDiv.classList.add ('status-light');
         projectSideDiv.append (statusDiv);
 
-        let projectName = document.createElement ('span');
-        projectName.textContent = this.title;
-        projectName.classList.add ('project-name', 'side')
-        projectSideDiv.append (projectName);
+        this.title.classList.add ('project-name', 'side')
+        this.title.textContent = project.title;
+        projectSideDiv.append (this.title);
 
-        let projectDate = document.createElement ('span');
-        projectDate.textContent = this.date;
-        projectDate.classList.add ('project-date', 'side')
-        projectSideDiv.append (projectDate);
+        this.date.classList.add ('project-date', 'side')
+        this.date.textContent = project.date;
+        projectSideDiv.append (this.date);
     }
-    updateInfo () {
-        this.domElement.remove();
-        while (this.domElement.lastElementChild) {
-            this.domElement.removeChild (this.domElement.lastElementChild);
-        }
-
-        let project = getProject(this.projectId);
-        this.title = project.title;
-        this.date = project.date;
-        this.domSetup();
+    updateInfo (project) {
+        this.title.textContent = project.title;
+        this.date.textContent = project.date;
+        //this.domSetup();
     }
     OnMouseClick() {
+        let project = getProject (this.projectId);
+        console.log (`clicked`);
         if (removeMode) {
-            let index = projects.findIndex(element => element === this);
+            let index = projects.findIndex(element => element.id === this.projectId);
             this.domElement.remove();
             projects.splice(index, 1);
             sidebar.removeButton.CheckProjects();
-            if (getCurrentProject().title !== "Tasks") {
-                SelectProject(taskSection);
-            }
+            localStorage.setItem("projects", JSON.stringify(projects))
+            SelectProject(taskSection);
         } else {
-            SelectProject(getProject(this.projectId));
+            SelectProject(project);
         }
     }
     OnMouseOver() {
         if (removeMode) {
             this.hoverRed();
         } else {
-            if(currentlySelected.id !== this.projectId){
-                this.hoverGrey();
+            if (this.domElement.style.backgroundColor !== "black") {
+                this.hoverGrey;
             }
-            
         }
         
     }
@@ -91,7 +89,7 @@ class ProjectTab {
             this.rModeActive();
         }
         else {
-            if (currentlySelected.id !== this.projectId){
+            if (this.domElement.style.backgroundColor !== "black"){
                 this.hoverNone();
             }
         }
@@ -127,11 +125,11 @@ class TaskTab {
     }
 
     OnMouseOver () {
-        if (currentlySelected.id !== this.projectId ) this.hoverGrey();
+        
     }
 
     OnMouseOut() {
-        if (currentlySelected.id !== this.projectId ) this.hoverNone();
+        
     }
 }
 
@@ -192,7 +190,6 @@ class SidebarButtons {
         if (projects.length === 1) {
             removeMode = false;
             this.hoverNone();
-            SelectProject(taskSection)
         }
     }
 
@@ -209,18 +206,18 @@ class SidebarButtons {
                 if (project.title === "Tasks") {continue;};
                 project.projectTab.hoverNone();
             }
-            currentlySelected.projectTab.selected();
+            
+            getSelectedProject().projectTab.selected();
         }
     }
     
     AddProject () {
         let newProject = new Project("Project Name", "Project Description", "--/--/----");
         newProject.projectTab = new ProjectTab (newProject);
-        newProject.projectTab.domSetup();
         projects.push (newProject);
-        //updateStorage();
-        // setIsEditable(true);
-        SelectProject(newProject, true);
+        newProject.projectTab.domSetup();
+        SelectProject(getProject(newProject.id), true);
+        localStorage.setItem("projects", JSON.stringify(projects));
     }
 }
 
@@ -234,7 +231,7 @@ class SideBar  {
         this.addButton;
         this.projectPane;
     }
-    domSetup () {
+    domSetup (taskTab) {
         this.body = document.createElement ('div');
         this.body.classList.add ('sidebar');
         containerDiv.prepend (this.body);
@@ -248,6 +245,8 @@ class SideBar  {
         this.logo.innerText = "TO.DO";
         this.header.append (this.logo);
 
+        this.body.append (taskTab.projectTab.domElement);
+
         this.removeButton = new SidebarButtons ("remove", "remove-project", "-", removeProjIcon);
         this.removeButton.DomSetup();
         this.header.append (this.removeButton.domElement);
@@ -255,15 +254,6 @@ class SideBar  {
         this.addButton = new SidebarButtons ("add", "add-project", "+", addProjIcon);
         this.addButton.DomSetup();
         this.header.append (this.addButton.domElement);
-
-        let taskTab = new Project ("Tasks", "These are your unorganized tasks.", "");
-        taskTab.projectTab = new TaskTab(taskTab);
-        taskTab.projectTab.domSetup();
-        this.body.append (taskTab.projectTab.domElement);
-        projects.push (taskTab);
-        SelectProject (taskTab);
-        taskTab.projectTab.selected();
-        taskSection = taskTab;
 
         this.projectPane = document.createElement ('div');
         this.projectPane.classList.add ('project-pane');
@@ -273,38 +263,41 @@ class SideBar  {
 
 const sidebar = new SideBar();
 let removeMode = false;
-let currentlySelected = null;
 let taskSection;
+let selectedProject;
 
 function SelectProject (project, isNew) {
+    selectedProject = project;
     if (isNew) {
         setIsEditable(isNew);
     } else {
         setIsEditable(false);
     }
-    if (currentlySelected) {
-        if (removeMode) {
-            currentlySelected.projectTab.hoverRed();
+
+    projects.forEach (item => {
+        if (removeMode && item.title !== "Tasks") {
+            item.projectTab.rModeActive();
         } else {
-            currentlySelected.projectTab.hoverNone();
+            item.projectTab.hoverNone();
         }
-    }
-    currentlySelected = project;
+    });
+
     project.projectTab.selected();
-    changeProject(project);
+
     clearTaskList();
-    loadTaskList(project);
+    changeProject(project);
+    //loadTaskList(project);
 }
 
-
-
-function getCurrentProject () {
-    return currentlySelected;
+function getSelectedProject () {
+    return selectedProject;
 }
 
-
-function initSidebar () {
-    sidebar.domSetup();
+function initSidebar (taskTab) {
+    taskTab.projectTab = new TaskTab(taskTab);
+    taskTab.projectTab.domSetup();
+    sidebar.domSetup(taskTab);
+    taskSection = taskTab;
 }
 
-export {initSidebar, TaskTab, ProjectTab, getCurrentProject}
+export {initSidebar, TaskTab, ProjectTab, getSelectedProject, SelectProject}

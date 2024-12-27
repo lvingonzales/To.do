@@ -63,3 +63,28 @@
     display: flex;
     align-items: center;
 }
+
+.hoverNone {
+    color: black;
+    background-color: transparent;
+}
+
+.selected {
+    color: white;
+    background-color: black;
+}
+
+.hoverGrey {
+    color: black;
+    background-color: grey;
+}
+
+.hoverRed {
+    color: white;
+    background-color: darkred;
+}
+
+.removeModeActive {
+    color: white;
+    background-color: red;
+}
