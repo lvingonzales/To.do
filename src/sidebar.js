@@ -1,8 +1,7 @@
-import { containerDiv, projects, Project, getProject} from "./main";
+import { containerDiv, projects, Project, getProject, getDefaultProject, getProjectsList} from "./main";
 import removeProjIcon from "./resources/icons/minus.svg";
 import addProjIcon from "./resources/icons/plus.svg";
 import { changeProject, setIsEditable } from "./project-page";
-import { clearTaskList, loadTaskList } from "./tasklist";
 
 class ProjectTab {
     constructor (project) {
@@ -38,10 +37,7 @@ class ProjectTab {
         console.log (`add listeners`);
         projectSideDiv.addEventListener("mouseover", (e) => this.OnMouseOver(e));
         projectSideDiv.addEventListener("mouseout", (e) => this.OnMouseOut(e));
-        projectSideDiv.addEventListener("click", (e) => {
-            console.log (e.target);
-            this.OnMouseClick(e)
-        });
+        projectSideDiv.addEventListener("click", (e) => this.OnMouseClick(e));
 
         let statusDiv = document.createElement ('div');
         statusDiv.classList.add ('status-light');
@@ -55,11 +51,13 @@ class ProjectTab {
         this.date.textContent = project.date;
         projectSideDiv.append (this.date);
     }
+
     updateInfo (project) {
         this.title.textContent = project.title;
         this.date.textContent = project.date;
         //this.domSetup();
     }
+
     OnMouseClick() {
         let project = getProject (this.projectId);
         console.log (`clicked`);
@@ -69,21 +67,23 @@ class ProjectTab {
             projects.splice(index, 1);
             sidebar.removeButton.CheckProjects();
             localStorage.setItem("projects", JSON.stringify(projects))
-            SelectProject(taskSection);
+            SelectProject (getDefaultProject());
         } else {
             SelectProject(project);
         }
     }
+
     OnMouseOver() {
         if (removeMode) {
             this.hoverRed();
         } else {
             if (this.domElement.style.backgroundColor !== "black") {
-                this.hoverGrey;
+                this.hoverGrey();
             }
         }
         
     }
+
     OnMouseOut () {
         if (removeMode) {
             this.rModeActive();
@@ -96,7 +96,7 @@ class ProjectTab {
     }
 }
 
-class TaskTab {
+class DefaultTab {
     constructor () {
         this.projectId = 0;
         this.hoverNone = () => {
@@ -118,6 +118,7 @@ class TaskTab {
         TaskButton.addEventListener("click", (e) => this.OnMouseClick(e));
         TaskButton.addEventListener("mouseover", (e) => this.OnMouseOver(e));
         TaskButton.addEventListener("mouseout", (e) => this.OnMouseOut(e)); 
+        sidebar.projectPane.before (this.domElement);
     }
 
     OnMouseClick () {
@@ -125,11 +126,15 @@ class TaskTab {
     }
 
     OnMouseOver () {
-        
+        if (getSelectedProject() !== getProject(this.projectId)) {
+            this.hoverGrey();
+        }
     }
 
     OnMouseOut() {
-        
+        if (getSelectedProject() !== getProject(this.projectId)) {
+            this.hoverNone();
+        }
     }
 }
 
@@ -231,7 +236,7 @@ class SideBar  {
         this.addButton;
         this.projectPane;
     }
-    domSetup (taskTab) {
+    domSetup () {
         this.body = document.createElement ('div');
         this.body.classList.add ('sidebar');
         containerDiv.prepend (this.body);
@@ -244,8 +249,6 @@ class SideBar  {
         this.logo.classList.add ('logo');
         this.logo.innerText = "TO.DO";
         this.header.append (this.logo);
-
-        this.body.append (taskTab.projectTab.domElement);
 
         this.removeButton = new SidebarButtons ("remove", "remove-project", "-", removeProjIcon);
         this.removeButton.DomSetup();
@@ -263,11 +266,15 @@ class SideBar  {
 
 const sidebar = new SideBar();
 let removeMode = false;
-let taskSection;
 let selectedProject;
 
 function SelectProject (project, isNew) {
-    selectedProject = project;
+    if (removeMode) {
+        setSelectedProject (getDefaultProject());
+    } else {
+        setSelectedProject (project);
+    }
+
     if (isNew) {
         setIsEditable(isNew);
     } else {
@@ -283,10 +290,12 @@ function SelectProject (project, isNew) {
     });
 
     project.projectTab.selected();
-
-    clearTaskList();
     changeProject(project);
     //loadTaskList(project);
+}
+
+function setSelectedProject (project) {
+    selectedProject = project;
 }
 
 function getSelectedProject () {
@@ -294,10 +303,22 @@ function getSelectedProject () {
 }
 
 function initSidebar (taskTab) {
-    taskTab.projectTab = new TaskTab(taskTab);
-    taskTab.projectTab.domSetup();
-    sidebar.domSetup(taskTab);
-    taskSection = taskTab;
+    sidebar.domSetup();
+    // Create the default projects Tab
+    let defaultProject = getDefaultProject();
+    defaultProject.projectTab = new DefaultTab ();
+    defaultProject.projectTab.domSetup();
+    console.log (`Created default tab object`);
+
+    console.log (`Adding other project Tabs`);
+    let projects = getProjectsList();
+    for(let project of projects) {
+        if (project.id === 0) {continue};
+        project.projectTab = new ProjectTab (project);
+        project.projectTab.domSetup();
+    }
+    console.log (`finished creating other project Tabs`)
+
 }
 
-export {initSidebar, TaskTab, ProjectTab, getSelectedProject, SelectProject}
+export {initSidebar, ProjectTab, getSelectedProject, SelectProject}

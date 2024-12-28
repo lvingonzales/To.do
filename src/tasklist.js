@@ -1,4 +1,4 @@
-import { getTask, getTasks, updateInfo } from "./main";
+import { getTask, getTasks, updateInfo, updateTaskStorage } from "./main";
 
 class TaskDisplay {
     constructor(task){
@@ -131,6 +131,7 @@ class TaskDisplay {
 
     saveInfo () {
         updateInfo (getTask(this.taskId),this.title.value, this.description.value, this.dates.value);
+        updateTaskStorage();
         getTask(this.taskId).taskListEntry.updateInfo();
         this.replaceElements();
     }
@@ -142,7 +143,7 @@ class TaskDisplay {
 
 const taskList = document.querySelector ('.task-list');
 
-function clearTaskList () {
+function clearTaskDisplay () {
     while (taskList.lastElementChild) {
         taskList.removeChild (taskList.lastElementChild);
     }
@@ -161,7 +162,7 @@ function addTaskDisplay (task) {
     let newTaskDisplay = new TaskDisplay (task);
     newTaskDisplay.nonEditableDomSetup();
     taskList.append (newTaskDisplay.mainDiv);
-    return newTaskDisplay.mainDiv;
+    return newTaskDisplay;
 }
 
-export { addTaskDisplay, clearTaskList, loadTaskList};
+export { addTaskDisplay, clearTaskDisplay, loadTaskList};

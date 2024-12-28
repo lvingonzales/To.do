@@ -1,10 +1,11 @@
 import "./style.css";
 import "./style-sidebar.css";
 import "./style-main.css";
-import {initSidebar} from "./sidebar.js";
+import {initSidebar, SelectProject} from "./sidebar.js";
 import { InitMainDisplay } from "./project-page.js";
 
-//localStorage.clear();
+// localStorage.clear();
+let defaultProject;
 const containerDiv = document.querySelector(".container");
 let projectIdCounter;
 let taskIdCounter;
@@ -43,6 +44,8 @@ class Task {
         this.notes = "";
         this.projectId = project.id;
         this.taskListEntry;
+        this.taskDisplay;
+        this.isCompleted = false;
     }
 }
 
@@ -67,6 +70,10 @@ function getTask (id) {
     return task;
 }
 
+function getProjectsList() {
+    return projects;
+}
+
 function getProject(id) {
     let project = projects.find (project => project.id === id);
     return project;
@@ -77,17 +84,25 @@ function getProjectTab (project) {
 }
 
 function initMain () {
-    let taskTab;
     if (!Array.isArray(projects) || !projects.length) {
-        taskTab = new Project ("Tasks", "These are your unorganized tasks.", "");
-        projects.push (taskTab);
+        defaultProject = new Project ("Tasks", "These are your unorganized tasks.", "");
+        projects.push (defaultProject);
         localStorage.setItem ('projects', JSON.stringify(projects));
+        console.log (defaultProject);
     } else {
-        taskTab = projects[0];
+        defaultProject = projects[0];
+        console.log (defaultProject);
     }
-    initSidebar(taskTab);
-    InitMainDisplay(taskTab);
-    //taskTab.projectTab.selected();
+
+    initSidebar();
+    InitMainDisplay();
+    SelectProject (defaultProject);
+}
+
+const getDefaultProject = () => defaultProject;
+
+function updateTaskStorage() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 function updateStorage() {
@@ -96,8 +111,16 @@ function updateStorage() {
     console.log (foo);
 }
 
-console.log (localStorage.getItem ('projects'));
+function debugGetProjects () {
+    return console.log (getDefaultProject());
+
+}
+
+
+console.log (tasks);
+//console.log (localStorage.getItem ('projects'));
 
 initMain();
+debugGetProjects();
 
-export {containerDiv, projects, Project, Task, getProjectTab, updateInfo, updateStorage, getProject, getTasks, getTask, pushTask}
+export {containerDiv, projects, Project, Task, getProjectTab, updateInfo, updateStorage, getProject, getTasks, getTask, pushTask, getDefaultProject, getProjectsList, updateTaskStorage}
