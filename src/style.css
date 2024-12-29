@@ -7,13 +7,17 @@ body {
     height: 100vh;
 }
 
+button:enabled {
+    cursor: pointer;
+}
+
 .container {
     display: flex;
     height: 100%;
 }
 
 .sidebar {
-    background-color: rebeccapurple;
+    background-color: #577399;
     border: 1px solid;
     width: 15%;
     display: flex;
@@ -23,23 +27,26 @@ body {
 
 .content {
     display: flex;
-    background-color: rebeccapurple;
+    background-color: #BDD5EA;
     border: 1px solid;
     width: 85%;
     padding: 1rem;
     gap: 1rem;
 }
 
+.content > div {
+    background-color: #495867;
+}
+
 .project-page {
-    background-color: greenyellow;
     width: 60%;
     border: 1px solid gray;
     border-radius: .5rem;
     padding: 1rem;
+    color: #f7f7ff;
 }
 
 .task-list {
-    background-color: greenyellow;
     width: 40%;
     border: 1px solid gray;
     border-radius: .5rem;
@@ -48,15 +55,19 @@ body {
     gap: 1rem;
     overflow: scroll;
     padding: 0.25rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-radius: 1rem;
 }
 
 .list-entry {
     display: grid;
-    padding: 0.25rem;
+    padding: .5rem;
     grid-template: repeat(12, 1fr) / repeat(12, 1fr);
-    background-color: aliceblue;
+    background-color: #f7f7ff;
     min-height: 200px;
     max-height: 200px;
+    border-radius: 1rem;
 }
 
 .list-title {
@@ -77,11 +88,29 @@ body {
 }
 
 #list-buttons {
-    grid-area: 11 / 11 / 13 / 13;
+    grid-area: 11 / 9 / 13 / 13;
     display: flex;
-    gap: 2px;
+    gap: 10px;
     align-items: center;
     justify-content: center;
+}
+
+#list-buttons > button{
+    background-color: #577399;
+    border-color: #495867;
+    color: #f7f7ff;
+    font-size: 1rem;
+    height: 2rem;
+    width: 4rem;
+}
+
+#list-buttons > button:disabled{
+    background-color: #1f262c;
+}
+
+#list-buttons > button:enabled:hover{
+    background-color: #495867;
+    color: #f7f7ff;
 }
 
 .list-boxes {

@@ -1,4 +1,5 @@
-import { getTask, getTasks, updateInfo, updateTaskStorage } from "./main";
+import { getProjectsList, getTask, getTasks, getTasksList, updateInfo, updateTaskStorage } from "./main";
+import { removeTaskCheckBox } from "./project-page";
 
 class TaskDisplay {
     constructor(task){
@@ -17,7 +18,17 @@ class TaskDisplay {
         this.saveButton.addEventListener ('click', (e) => this.saveInfo(e));
         this.editButton = document.createElement('button');
         this.editButton.addEventListener ('click', (e) => this.editInfo(e));
+        this.deleteButton = document.createElement('button');
+        this.deleteButton.addEventListener ('click', (e) => this.removeTask(e));
     }
+
+    markTask (isComplete) {
+        if (isComplete) {
+            this.title.classList.add ("complete-task");
+        } else {
+            this.title.classList.remove ("complete-task");
+        }
+    }   
     
     isEditableDomSetup () {
         this.title = document.createElement ('textarea');
@@ -50,6 +61,7 @@ class TaskDisplay {
         this.dates = document.createElement ('div');
         
         this.notes = document.createElement ('textarea');
+        this.notes.addEventListener('input', (e) => this.addNotes(e));
 
         this.editButton.disabled = false;
         this.saveButton.disabled = true;
@@ -57,6 +69,12 @@ class TaskDisplay {
         this.classSetup();
         this.appendElements();
         this.fillInfo()
+    }
+
+    addNotes () {
+        let task = getTask(this.taskId);
+        task.notes = this.notes.value;
+        updateTaskStorage();
     }
 
     replaceElements () {
@@ -69,6 +87,8 @@ class TaskDisplay {
         
             this.dates = document.createElement ('div');
             this.mainDiv.querySelector('.list-date').replaceWith(this.dates);
+
+            this.notes.classList.remove ('list-boxes');
 
             this.saveButton.disabled = true;
             this.editButton.disabled = false;
@@ -109,6 +129,7 @@ class TaskDisplay {
         this.notes.textContent = task.notes;
         this.saveButton.textContent = `Save`;
         this.editButton.textContent = `Edit`;
+        this.deleteButton.textContent = `Delete`;
 
         this.title.placeholder = 'Enter a Title';
         this.description.placeholder = 'Enter a description.'
@@ -126,7 +147,7 @@ class TaskDisplay {
 
     appendElements () {
         this.mainDiv.append (this.title, this.description, this.dates, this.notes, this.listButtonWrapper);
-        this.listButtonWrapper.append (this.saveButton, this.editButton);
+        this.listButtonWrapper.append (this.saveButton, this.editButton, this.deleteButton);
     }
 
     saveInfo () {
@@ -138,6 +159,16 @@ class TaskDisplay {
 
     editInfo () {
         this.replaceElements();
+    }
+
+    removeTask() {
+        let tasks = getTasksList();
+        let index = tasks.findIndex(element => element.id === this.taskId);
+        this.mainDiv.remove();
+        removeTaskCheckBox(getTask(this.taskId));
+        tasks.splice (index, 1);
+        updateTaskStorage();
+        console.log (`Task Removed`);
     }
 }
 

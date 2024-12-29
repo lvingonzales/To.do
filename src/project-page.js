@@ -1,4 +1,4 @@
-import { Task, getProjectTab, updateInfo, getTasks, getTask, pushTask, getDefaultProject, getProjectsList, updateTaskStorage } from "./main";
+import { Task, getProjectTab, updateInfo, getTasks, getTask, pushTask, getDefaultProject, getProjectsList, updateTaskStorage, updateProjectStorage } from "./main";
 import { getSelectedProject, SelectProject } from "./sidebar";
 import { addTaskDisplay, clearTaskDisplay } from "./tasklist";
 
@@ -126,6 +126,12 @@ class MainDisplay {
         this.titleDom.classList.add ('project-title');
         this.descriptionDom.classList.add ('project-description');
         this.dateDom.classList.add ('project-date');
+
+        if (this.isEditable) {
+            this.titleDom.classList.add ('edit-areas');
+            this.descriptionDom.classList.add ('edit-areas');
+            this.dateDom.classList.add ('edit-areas');
+        }
     }
 
     loadInfo (project) {
@@ -164,7 +170,7 @@ class MainDisplay {
     addNotes () {
         let project = getSelectedProject();
         project.notes = this.projectNotesDom.value;
-        console.log(project.notes);
+        updateProjectStorage();
     }
 }
 
@@ -316,6 +322,8 @@ class TaskCheckListTab {
             task.isCompleted = false;
         }
         
+        task.taskDisplay.markTask(task.isCompleted);
+
         updateTaskStorage();
     }
 
@@ -325,6 +333,10 @@ class TaskCheckListTab {
             console.log (`task initialized as complete`);
         }
     }
+}
+
+function removeTaskCheckBox (task) {
+    task.taskListEntry.domElement.remove();
 }
 
 function addTaskCheckBox (task) {
@@ -347,8 +359,8 @@ function changeProject (project) {
     clearTaskDisplay();
     let tasks = getTasks(project.id);
     tasks.forEach(task => {
-        task.taskListEntry = addTaskCheckBox (task);
         task.taskDisplay = addTaskDisplay (task);
+        task.taskListEntry = addTaskCheckBox (task);
     });
 }
 
@@ -381,4 +393,4 @@ function loadTaskWidgets (project) {
         addTaskDisplay(task);
     });
 }
-export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, setIsEditable, changeProject};
+export {InitMainDisplay, ChangeDisplay, TaskCheckListTab, setIsEditable, changeProject, removeTaskCheckBox};

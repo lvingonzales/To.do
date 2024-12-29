@@ -38,11 +38,7 @@ class ProjectTab {
         projectSideDiv.addEventListener("mouseover", (e) => this.OnMouseOver(e));
         projectSideDiv.addEventListener("mouseout", (e) => this.OnMouseOut(e));
         projectSideDiv.addEventListener("click", (e) => this.OnMouseClick(e));
-
-        let statusDiv = document.createElement ('div');
-        statusDiv.classList.add ('status-light');
-        projectSideDiv.append (statusDiv);
-
+        
         this.title.classList.add ('project-name', 'side')
         this.title.textContent = project.title;
         projectSideDiv.append (this.title);
@@ -148,6 +144,7 @@ class SidebarButtons {
         this.hoverNone = () => this.domElement.style.backgroundColor = "transparent";
         this.hoverGrey = () => this.domElement.style.backgroundColor = "grey";
         this.active = () => this.domElement.style.backgroundColor = "red";
+
     }
     DomSetup () {
         this.domElement = document.createElement('button');

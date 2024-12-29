@@ -74,6 +74,10 @@ function getProjectsList() {
     return projects;
 }
 
+function getTasksList() {
+    return tasks;
+}
+
 function getProject(id) {
     let project = projects.find (project => project.id === id);
     return project;
@@ -105,10 +109,8 @@ function updateTaskStorage() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-function updateStorage() {
+function updateProjectStorage() {
     localStorage.setItem ('projects', JSON.stringify(projects));
-    let foo = JSON.parse(localStorage.getItem ('projects'));
-    console.log (foo);
 }
 
 function debugGetProjects () {
@@ -123,4 +125,4 @@ console.log (tasks);
 initMain();
 debugGetProjects();
 
-export {containerDiv, projects, Project, Task, getProjectTab, updateInfo, updateStorage, getProject, getTasks, getTask, pushTask, getDefaultProject, getProjectsList, updateTaskStorage}
+export {containerDiv, projects, Project, Task, getTasksList, getProjectTab, updateInfo, updateProjectStorage, getProject, getTasks, getTask, pushTask, getDefaultProject, getProjectsList, updateTaskStorage}
