@@ -1,0 +1,67 @@
+@import url(https://fonts.bunny.net/css?family=roboto:100,300,400,500,700,900);
+
+.header {
+    display: flex;
+    height: 40px;
+}
+
+.header > button {
+    cursor: pointer;
+    border: none;
+    width: 40px;
+    border-radius: 20%;
+}
+
+.logo {
+    cursor: pointer;
+    font: 900 italic 2rem Roboto;
+    width: 70%;
+}
+
+.project-pane {
+    height: 85%;
+    width: 100%;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.project.side {
+    cursor: pointer;
+    display: flex;
+    gap:10px;
+    align-items: center;
+    min-height: 5%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.project-name.side {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project-date.side {
+    margin-left: auto;
+}
+
+.status-light {
+    min-width: 10px;
+    min-height: 10px;
+    background-color: yellow;
+    border-radius: 50%;
+}
+
+.task-button {
+    padding-left: 1rem;
+    height: 40px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+
